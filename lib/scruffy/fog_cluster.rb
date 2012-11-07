@@ -15,14 +15,22 @@ class FogCluster
     end
 
     servers.map do |s|
-      p s
       {
         id: s.id,
         ip: s.public_ip_address,
         type: s.flavor_id,
         started_at: s.created_at,
+        state: FogCluster.box_state(s.state),
         tags: s.tags
       }
+    end
+  end
+  
+  def self.box_state ec2_state
+    if ec2_state == 'running'
+      'up'
+    else
+      ec2_state
     end
   end
 

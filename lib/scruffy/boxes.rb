@@ -11,7 +11,7 @@ class Boxes < Array
         s[:id],
         s[:ip],
         BoxType.find(s[:type]),
-        s[:state],
+        s[:state].to_sym,
         s[:started_at],
         s[:tags]
       )
