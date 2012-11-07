@@ -11,7 +11,10 @@ STDOUT.sync = true
 
 boxes = Boxes.new(FogCluster.new)
 boxes.update!
-p boxes
+boxes.each do |box|
+  puts "box:#{box.id}"
+end
+puts "boxes:#{boxes.count}"
 
 # EM.epoll
 
