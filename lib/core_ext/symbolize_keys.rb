@@ -8,3 +8,9 @@ class Hash
     Hash.symbolize_keys self
   end
 end
+
+class Array
+  def symbolize_keys
+    map{|i| Hash.symbolize_keys i }
+  end
+end

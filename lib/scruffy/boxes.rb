@@ -17,4 +17,12 @@ class Boxes < Array
       )
     end
   end
+  
+  def ids
+    map(&:id)
+  end
+  
+  def by_id id
+    find{|b| b.id == id}
+  end
 end

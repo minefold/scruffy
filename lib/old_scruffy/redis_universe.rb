@@ -11,13 +11,13 @@ module Scruffy
         EM.stop
       }
 
-      heartbeats = {}
+      pinky_heartbeats = {}
       op0 = EM::DefaultDeferrable.new
       redis.keys("pinky/*/heartbeat") do |keys|
         EM::Iterator.new(keys).each(proc{|key, iter|
           pinky_id = key.split('/')[1]
           redis.get_json(key) do |pinky_info|
-            heartbeats[pinky_id] = pinky_info
+            pinky_heartbeats[pinky_id] = pinky_info
             iter.next
           end
         }, proc { op0.succeed })
@@ -73,7 +73,7 @@ module Scruffy
         @timeout.cancel
 
         pinkies = {}
-        heartbeats.each do |pinky_id, heartbeat|
+        pinky_heartbeats.each do |pinky_id, heartbeat|
           servers = (pinky_servers[pinky_id] || []).inject({}) do |h, server_id|
             h[server_id] = {
               state: server_states[server_id]

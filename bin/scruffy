@@ -4,51 +4,17 @@ require 'bundler/setup'
 Bundler.require :default
 
 $:.unshift File.join File.dirname(__FILE__), '../lib'
-# require 'minefold'
 require 'scruffy'
 
 STDOUT.sync = true
 
-boxes = Boxes.new(FogCluster.new)
-boxes.update!
-boxes.each do |box|
-  puts "box:#{box.id}"
+while true
+  boxes = Boxes.new(VagrantCluster.new)
+  pinkies = Pinkies.new(RedisBus.new)
+  scruffy = Scruffy.new(RedisBus.new, boxes, pinkies)
+  
+  scruffy.sweep!
+  scruffy.report
+  
+  sleep 5
 end
-puts "boxes:#{boxes.count}"
-
-# EM.epoll
-
-# module Scruffy
-#   class Sweepy
-#     def initialize
-#       @scruffy = Scruffy.new
-#     end
-# 
-#     def start_sweepin
-#       started_at = Time.now
-# 
-#       @timeout = EM.add_periodic_timer(120) do
-#         raise "Sweep took too long"
-#       end
-# 
-#       @scruffy.perform_sweep do
-#         @timeout.cancel
-#         @scruffy.record_stats
-#         StatsD.measure_timer started_at, "scruffy.sweep"
-#       
-#         EM.add_timer(5) { start_sweepin }
-#       end
-#     end
-#   end
-# 
-#   EM.run do
-#     puts "Started. #{Fold.env} mode"
-# 
-#     EM.error_handler do |e|
-#       Exceptional.handle(e)
-#       raise e
-#     end
-# 
-#     Sweepy.new.start_sweepin
-#   end
-# end
