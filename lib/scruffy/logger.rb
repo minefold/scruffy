@@ -1,4 +1,5 @@
 require 'time'
+require 'colored'
 
 class Logger
   def initialize meta_data = {}
@@ -7,6 +8,10 @@ class Logger
 
   def info data
     out('info', data)
+  end
+
+  def warn data
+    out('warn', data)
   end
   
   def error e, data
@@ -39,7 +44,16 @@ class Logger
       ![:ts, :level, :event].include?(k)
     }.map{|k,v| "#{k}=#{quote_unspaced v}"}.sort
     
-    puts "#{data[:ts]} [#{data[:level]}] #{data[:event]} #{attrs.join(' ')}"
+    msg = "#{data[:ts]} [#{data[:level]}] #{data[:event]} #{attrs.join(' ')}"
+    
+    case data[:level]
+    when 'warn'
+      puts msg.yellow
+    when 'error'
+      puts msg.red
+    else
+      puts msg
+    end
   end
   
   def quote_unspaced s

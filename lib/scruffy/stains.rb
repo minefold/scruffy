@@ -8,6 +8,14 @@ class Stain
 
     @log = Logger.new
   end
+  
+  class << self
+    attr_reader :all
+    
+    def inherited(klass)
+      (@all ||= []) << klass
+    end
+  end
 end
 
 Dir[File.dirname(__FILE__) + '/stains/*.rb'].each {|file| require file }

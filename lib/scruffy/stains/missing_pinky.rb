@@ -6,7 +6,7 @@
 #   pinky ran out of disk space to write pid files
 
 # smell:
-#   there are running servers with up state that don't have 
+#   there are running boxes with up state that don't have
 #   associated pinky heartbeats
 
 # cleanup:
@@ -21,24 +21,28 @@
 #    worlds affected (potential data loss)
 #    players affected
 
-class MissingPinky
-  attr_reader :log
-  
-  def initialize boxes, pinkies
-    @boxes, @pinkies = boxes, pinkies
-    
-    @log = Logger.new(event: 'missing_pinky')
-  end
-  
-  def smell?
-    missing_pinky_ids = @boxes.ids - @pinkies.ids
-    missing_pinky_ids.each do |id|
-      box = @boxes.find{|b| b.id == id }
-      log.info(box_id: box.id)
+class MissingPinky < Stain
+  def clean
+    (up_box_ids - pinkies.ids).each do |missing_pinky_id|
+      entry = boxes_cache.find{|entry|
+        entry.id == missing_pinky_id && entry.state == 'missing_pinky'
+      }
+
+      if !entry
+        box = boxes.by_id(missing_pinky_id)
+        entry = BoxCacheEntry.new(box.id, 'missing_pinky', Time.now)
+        boxes_cache << entry
+      end
+
+      duration = Time.now - entry.transitioned_at
+
+      log.warn event: 'missing_pinky',
+        id: missing_pinky_id,
+        duration: duration
     end
   end
-  
-  def up_servers
-    
+
+  def up_box_ids
+    boxes.select{|b| b.state == :up}.map{|b| b.id }
   end
 end

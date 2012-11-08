@@ -1,5 +1,7 @@
 # Scruffy
 
+![Scruffy](http://www.harshil.in/fun/scruffy/scruffy.png)
+
 1. collect the state of the world
   - collect AWS state (query AWS)
   - collect pinky state (read from redis)
