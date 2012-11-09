@@ -1,9 +1,11 @@
 class Stain
   attr_reader :log
-  attr_reader :boxes_cache, :pinkies_cache, :boxes, :pinkies
+  attr_reader :bus
+  attr_reader :boxes_cache, :pinkies_cache, :stains_cache, :boxes, :pinkies
 
-  def initialize boxes_cache, pinkies_cache, boxes, pinkies
-    @boxes_cache, @pinkies_cache = boxes_cache, pinkies_cache
+  def initialize bus, boxes_cache, pinkies_cache, stains_cache, boxes, pinkies
+    @bus = bus
+    @boxes_cache, @pinkies_cache, @stains_cache = boxes_cache, pinkies_cache, stains_cache
     @boxes, @pinkies = boxes, pinkies
 
     @log = Logger.new

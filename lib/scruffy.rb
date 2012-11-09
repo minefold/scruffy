@@ -4,24 +4,29 @@ require "scruffy/box_type"
 require "scruffy/box"
 require "scruffy/boxes"
 require "scruffy/fog_cluster"
-require "scruffy/vagrant_cluster"
+require "scruffy/local_cluster"
 require "scruffy/redis_bus"
 require "scruffy/pinkies"
 require "scruffy/pinky"
 require "scruffy/server"
-require "scruffy/box_cache"
+require "scruffy/entity_state_cache"
 require "scruffy/stains"
 
 class Scruffy
+  attr_reader :log
+
   def initialize bus, boxes, pinkies
     @bus = bus
     @boxes = boxes
     @pinkies = pinkies
+
+    @log = Logger.new
   end
 
   def sweep!
     # load previous scruffy caches
-    @boxes_cache = BoxesCache.deserialize(@bus.boxes_cache)
+    @boxes_cache = EntityStateCache.deserialize(@bus.boxes_cache) || []
+    @stains_cache = EntityStateCache.deserialize(@bus.stains_cache) || []
 
     @boxes.update!
     @pinkies.update!
@@ -29,11 +34,12 @@ class Scruffy
     find_and_clean_stains
 
     @bus.store_boxes_cache @boxes_cache.serialize
+    @bus.store_stains_cache @stains_cache.serialize
   end
 
   def find_and_clean_stains
     Stain.all.each do |klass|
-      stain = klass.new(@boxes_cache, @pinkies_cache, @boxes, @pinkies)
+      stain = klass.new(@bus, @boxes_cache, @pinkies_cache, @stains_cache, @boxes, @pinkies)
       stain.clean
     end
   end

@@ -26,6 +26,7 @@
 /pinky/* /servers/*state
 /prism/*/players/
 /server/*/state
+/server/*/allocation (ram/ecus)
 
 /scruffy/cache/boxes
 

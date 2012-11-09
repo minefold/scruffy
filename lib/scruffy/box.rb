@@ -9,4 +9,24 @@ class Box
     @started_at = started_at
     @tags = tags
   end
+
+  def self.deserialize h
+    new(
+      h[:id],
+      h[:ip],
+      h[:type],
+      h[:state],
+      Time.at(h[:started_at]),
+      h[:tags])
+  end
+  
+  def serialize
+    {
+      id: id,
+      ip: ip,
+      type: type,
+      state: state,
+      started_at: started_at.to_i
+    }
+  end
 end

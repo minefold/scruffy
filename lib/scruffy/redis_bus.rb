@@ -25,6 +25,10 @@ class RedisBus
       }
     end
   end
+  
+  def set_pinky_state id, state
+    redis.set("pinky/#{id}/state", state)
+  end
 
   def pinky_servers
     redis.keys("pinky/*/servers/*").map do |key|
@@ -55,6 +59,15 @@ class RedisBus
   
   def store_boxes_cache cache
     redis.set("scruffy/cache/boxes", JSON.dump(cache))
+  end
+  
+  def stains_cache
+    json = redis.get("scruffy/cache/stains")
+    JSON.load(json).symbolize_keys if json
+  end
+  
+  def store_stains_cache cache
+    redis.set("scruffy/cache/stains", JSON.dump(cache))
   end
 end
 

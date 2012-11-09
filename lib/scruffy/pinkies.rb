@@ -32,8 +32,12 @@ class Pinkies < Array
     end
 
   end
-  
+
   def ids
     map(&:id)
+  end
+
+  def pinky_down! id
+    @bus.set_pinky_state id, :down
   end
 end

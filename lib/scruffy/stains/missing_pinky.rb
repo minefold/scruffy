@@ -23,26 +23,40 @@
 
 class MissingPinky < Stain
   def clean
-    (up_box_ids - pinkies.ids).each do |missing_pinky_id|
-      entry = boxes_cache.find{|entry|
-        entry.id == missing_pinky_id && entry.state == 'missing_pinky'
-      }
+    detect_new
+    monitor_existing
+  end
 
-      if !entry
-        box = boxes.by_id(missing_pinky_id)
-        entry = BoxCacheEntry.new(box.id, 'missing_pinky', Time.now)
-        boxes_cache << entry
-      end
+  def detect_new
+    (up_box_ids - pinkies.ids - current_stain_ids).each do |missing_pinky_id|
+      box = boxes.by_id(missing_pinky_id)
 
-      duration = Time.now - entry.transitioned_at
+      entry = EntityStateChange.new(box.id, 'missing_pinky', Time.now)
+      stains_cache << entry
 
-      log.warn event: 'missing_pinky',
+      pinkies.pinky_down! box.id
+
+      log.warn event: 'missing_pinky_found',
         id: missing_pinky_id,
-        duration: duration
+        action: 'pinky state => down'
+    end
+  end
+
+  def monitor_existing
+    current_stains.select{|stain| stain.duration > 60 }.each do |stain|
+
     end
   end
 
   def up_box_ids
     boxes.select{|b| b.state == :up}.map{|b| b.id }
+  end
+
+  def current_stain_ids
+    current_stains.map{|stain| stain.id }
+  end
+
+  def current_stains
+    stains_cache.select{|stain| stain.state == 'missing_pinky' }
   end
 end
