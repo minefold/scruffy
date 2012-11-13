@@ -14,7 +14,7 @@ while true
   scruffy = Scruffy.new(RedisBus.new, boxes, pinkies)
   
   scruffy.sweep!
-  # scruffy.report
+  scruffy.report
   
   sleep 5
 end

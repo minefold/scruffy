@@ -21,13 +21,17 @@ class RedisBus
       pinky_id = key.split('/')[1]
       {
         id: pinky_id,
-        state: redis.get(key)
+        state: redis.get(key).to_sym
       }
     end
   end
   
   def set_pinky_state id, state
     redis.set("pinky/#{id}/state", state)
+  end
+
+  def del_pinky_state id
+    redis.del("pinky/#{id}/state")
   end
 
   def pinky_servers
@@ -59,6 +63,15 @@ class RedisBus
   
   def store_boxes_cache cache
     redis.set("scruffy/cache/boxes", JSON.dump(cache))
+  end
+  
+  def pinkies_cache
+    json = redis.get("scruffy/cache/pinkies")
+    JSON.load(json).symbolize_keys if json
+  end
+  
+  def store_pinkies_cache cache
+    redis.set("scruffy/cache/pinkies", JSON.dump(cache))
   end
   
   def stains_cache

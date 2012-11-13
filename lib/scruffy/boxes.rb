@@ -17,20 +17,12 @@ class Boxes < Array
       )
     end
   end
-  
-  def ids
-    map(&:id)
-  end
-  
-  def by_id id
-    find{|b| b.id == id}
-  end
-  
-  def starting
-    select{|b| b.state == :starting }
-  end
-  
+
   def start_new box_type
     @cluster.start_new box_type, { "Name" => "pinky" }
+  end
+
+  def terminate id
+    @cluster.terminate id
   end
 end

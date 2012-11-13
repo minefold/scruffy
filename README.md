@@ -20,19 +20,19 @@
   - shut down boxes when excess capacity
   - rebalance servers for player counts
 
-5. save new state
+4. save new state
 
-/pinky/* /state
-/pinky/* /servers/*state
-/prism/*/players/
-/server/*/state
-/server/*/allocation (ram/ecus)
+    /pinky/* /state
+    /pinky/* /servers/*state
+    /prism/*/players/
+    /server/*/state
+    /server/*/allocation (ram/ecus)
 
-/scruffy/cache/boxes
+    /scruffy/cache/boxes
 
-/scruffy/cache/servers
-/scruffy/cache/pinkies
-/scruffy/cache/prisms
+    /scruffy/cache/servers
+    /scruffy/cache/pinkies
+    /scruffy/cache/prisms
 
 
 One box has one pinky, both identified by the instance-id from Amazon (eg i-fb0c3287)
@@ -59,7 +59,7 @@ Server
 Player
   - id
   
-# pinky coming up
+## pinky coming up
 * (scruffy creates EC2 instance - gets instance id)
 * (scruffy sets box to starting)
 * box - starting
@@ -69,7 +69,8 @@ Player
 * pinky - up
 
 
-# pinky going down
+## pinky going down
 * (scruffy sets pinky state to stopping)
 * (scruffy sets box state to stopping)
 * (scruffy terminates box)
+

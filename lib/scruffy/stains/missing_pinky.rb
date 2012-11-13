@@ -6,8 +6,7 @@
 #   pinky ran out of disk space to write pid files
 
 # smell:
-#   there are running boxes with up state that don't have
-#   associated pinky heartbeats
+#   pinkies in up state that previously had a heartbeat and now don't
 
 # cleanup:
 #   set relevent pinky state to down
@@ -23,40 +22,26 @@
 
 class MissingPinky < Stain
   def clean
-    detect_new
-    monitor_existing
+    # missing_pinky_ids.each do |missing_pinky_id|
+    #   box = boxes.by_id(missing_pinky_id)
+    # 
+    #   pinkies.pinky_down! box.id
+    # 
+    #   log.warn event: 'missing_pinky_found',
+    #     id: missing_pinky_id,
+    #     action: 'pinky state => down'
+    # end
   end
 
-  def detect_new
-    (up_box_ids - pinkies.ids - current_stain_ids).each do |missing_pinky_id|
-      box = boxes.by_id(missing_pinky_id)
-
-      entry = EntityStateChange.new(box.id, 'missing_pinky', Time.now)
-      stains_cache << entry
-
-      pinkies.pinky_down! box.id
-
-      log.warn event: 'missing_pinky_found',
-        id: missing_pinky_id,
-        action: 'pinky state => down'
-    end
+  def missing_pinky_ids
+    up_pinky_ids - heartbeat_ids
   end
-
-  def monitor_existing
-    current_stains.select{|stain| stain.duration > 60 }.each do |stain|
-
-    end
+  
+  def heartbeat_ids
+    pinkies.heartbeats.map{|hb| hb[:id] }
   end
-
-  def up_box_ids
-    boxes.select{|b| b.state == :up}.map{|b| b.id }
-  end
-
-  def current_stain_ids
-    current_stains.map{|stain| stain.id }
-  end
-
-  def current_stains
-    stains_cache.select{|stain| stain.state == 'missing_pinky' }
+  
+  def up_pinky_ids
+    pinkies.states.select{|ps| ps[:state] == :up }.map{|ps| ps[:id] }
   end
 end

@@ -29,4 +29,8 @@ class Box
       started_at: started_at.to_i
     }
   end
+  
+  def uptime_mins
+    ((Time.now - started_at) / 60.0).floor
+  end
 end

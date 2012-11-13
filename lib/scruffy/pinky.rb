@@ -10,4 +10,12 @@ class Pinky
     @idle_cpu = idle_cpu
     @servers = servers
   end
+  
+  def up?
+    state == :up
+  end
+
+  def stopping?
+    state == :stopping
+  end
 end

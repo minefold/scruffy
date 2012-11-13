@@ -1,5 +1,6 @@
 require "core_ext"
 require "scruffy/logger"
+require "scruffy/entity_collection"
 require "scruffy/box_type"
 require "scruffy/box"
 require "scruffy/boxes"
@@ -11,6 +12,7 @@ require "scruffy/pinky"
 require "scruffy/server"
 require "scruffy/entity_state_cache"
 require "scruffy/stains"
+require "scruffy/allocator"
 
 class Scruffy
   attr_reader :log
@@ -26,15 +28,68 @@ class Scruffy
   def sweep!
     # load previous scruffy caches
     @boxes_cache = EntityStateCache.deserialize(@bus.boxes_cache) || []
-    @stains_cache = EntityStateCache.deserialize(@bus.stains_cache) || []
+    @pinkies_cache = EntityStateCache.deserialize(@bus.pinkies_cache) || []
 
     @boxes.update!
     @pinkies.update!
 
+    update_states
     find_and_clean_stains
+    update_caches
+  end
 
-    @bus.store_boxes_cache @boxes_cache.serialize
-    @bus.store_stains_cache @stains_cache.serialize
+  def update_states
+    find_gone_pinkies
+    update_pinky_states
+    start_boxes
+    stop_boxes
+  end
+
+  def find_gone_pinkies
+    (@boxes_cache.ids - @boxes.ids).each do |box_id|
+      if pinky = @pinkies.by_id(box_id)
+        if pinky.stopping?
+          log.info event: 'box_gone', id: box_id, action: 'removing pinky'
+          @pinkies.delete! box_id
+        end
+      end
+    end
+  end
+
+  def update_pinky_states
+    (@boxes.up.ids - @pinkies.ids).each do |box_id|
+      log.info event: 'box_up', id: box_id, action: 'set pinky to starting'
+
+      @pinkies.pinky_starting! box_id
+    end
+  end
+
+  def start_boxes
+    allocator = Allocator.new(@boxes, @pinkies)
+
+    if allocator.low_capacity?
+      log.warn event: 'low_capacity',
+        used: allocator.server_slots_used,
+        available: allocator.server_slots_available,
+        action: 'starting new box'
+
+      @boxes.start_new BoxType.find('c1.xlarge')
+    end
+  end
+
+  def stop_boxes
+    allocator = Allocator.new(@boxes, @pinkies)
+
+    allocator.excess_pinkies.each do |pinky|
+      log.warn event: 'excess_capacity',
+        id: pinky.id,
+        used: allocator.server_slots_used,
+        available: allocator.server_slots_available,
+        action: 'terminating box'
+
+      @pinkies.pinky_stopping! pinky.id
+      @boxes.terminate pinky.id
+    end
   end
 
   def find_and_clean_stains
@@ -42,6 +97,14 @@ class Scruffy
       stain = klass.new(@bus, @boxes_cache, @pinkies_cache, @stains_cache, @boxes, @pinkies)
       stain.clean
     end
+  end
+
+  def update_caches
+    @boxes_cache.diff! 'box', @boxes
+    @bus.store_boxes_cache @boxes_cache.serialize
+    
+    @pinkies_cache.diff! 'pinky', @pinkies
+    @bus.store_pinkies_cache @pinkies_cache.serialize
   end
 
   def report
@@ -52,9 +115,8 @@ class Scruffy
         ip: box.ip,
         type: box.type.id,
         state: box.state,
-        started_at: box.started_at,
+        uptime: box.uptime_mins,
         tags: box.tags
-
     end
 
     @pinkies.each do |pinky|
