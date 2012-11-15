@@ -1,6 +1,6 @@
 class Pinkies < Array
   attr_accessor :states, :servers, :server_states, :heartbeats
-  
+
   def initialize bus
     @bus = bus
   end
@@ -16,9 +16,11 @@ class Pinkies < Array
       hb = @heartbeats.find{|hb| hb[:id] == pinky_id}
 
       servers = @servers.select{|ps| ps[:pinky_id] == pinky_id }.map do |ps|
+        ss = server_states.find{|ss| ss[:id] == ps[:id]}
+        
         Server.new(
           ps[:id],
-          server_states.find{|ss| ss[:id] == pinky_id}[:state],
+          ss && ss[:state],
           ps[:port]
         )
       end
@@ -33,9 +35,9 @@ class Pinkies < Array
         servers
       )
     end
-    
+
   end
-  
+
   def heartbeat_ids
     @heartbeats.map{|hb| hb[:id]}
   end
@@ -58,7 +60,7 @@ class Pinkies < Array
     @bus.set_pinky_state id, :down
     update!
   end
-  
+
   def delete! id
     @bus.del_pinky_state id
   end

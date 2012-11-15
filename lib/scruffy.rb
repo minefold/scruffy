@@ -39,10 +39,33 @@ class Scruffy
   end
 
   def update_states
+    find_gone_boxes
+    find_new_boxes
+
     find_gone_pinkies
-    update_pinky_states
+    find_new_pinkies
+
     start_boxes
     stop_boxes
+  end
+
+  def find_gone_boxes
+    (@boxes_cache.ids - @boxes.ids).each do |box_id|
+      log.info event: 'box_gone', id: box_id
+
+      @bus.del_box_info(box_id)
+    end
+  end
+
+  def find_new_boxes
+    (@boxes.ids - @boxes_cache.ids).each do |box_id|
+      box = @boxes.by_id(box_id)
+      log.info event: 'box_found', id: box_id,
+        ip: box.ip, type: box.type.id, state: box.state,
+        started_at: box.started_at, tags: box.tags
+
+      @bus.store_box_info(box.id, box.ip, box.type.id, box.started_at, box.tags)
+    end
   end
 
   def find_gone_pinkies
@@ -56,7 +79,7 @@ class Scruffy
     end
   end
 
-  def update_pinky_states
+  def find_new_pinkies
     (@boxes.up.ids - @pinkies.ids).each do |box_id|
       log.info event: 'box_up', id: box_id, action: 'set pinky to starting'
 
@@ -102,7 +125,7 @@ class Scruffy
   def update_caches
     @boxes_cache.diff! 'box', @boxes
     @bus.store_boxes_cache @boxes_cache.serialize
-    
+
     @pinkies_cache.diff! 'pinky', @pinkies
     @bus.store_pinkies_cache @pinkies_cache.serialize
   end

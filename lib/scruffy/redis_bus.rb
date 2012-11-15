@@ -10,33 +10,33 @@ class RedisBus
   end
 
   def pinky_heartbeats
-    redis.keys("pinky/*/heartbeat").map do |key|
-      id = key.split('/')[1]
+    redis.keys("pinky:*:heartbeat").map do |key|
+      id = key.split(':')[1]
       JSON.load(redis.get(key)).merge(id: id)
     end
   end
 
   def pinky_states
-    redis.keys("pinky/*/state").map do |key|
-      pinky_id = key.split('/')[1]
+    redis.keys("pinky:*:state").map do |key|
+      pinky_id = key.split(':')[1]
       {
         id: pinky_id,
         state: redis.get(key).to_sym
       }
     end
   end
-  
+
   def set_pinky_state id, state
-    redis.set("pinky/#{id}/state", state)
+    redis.set("pinky:#{id}:state", state)
   end
 
   def del_pinky_state id
-    redis.del("pinky/#{id}/state")
+    redis.del("pinky:#{id}:state")
   end
 
   def pinky_servers
-    redis.keys("pinky/*/servers/*").map do |key|
-      _, pinky_id, _, server_id = key.split('/')
+    redis.keys("pinky:*:servers:*").map do |key|
+      _, pinky_id, _, server_id = key.split(':')
 
       JSON.load(redis.get(key)).merge(
         id: server_id,
@@ -47,40 +47,54 @@ class RedisBus
   end
 
   def server_states
-    redis.keys("server/state/*").map do |key|
-      server_id = key.split('/')[2]
+    redis.keys("server:state:*").map do |key|
+      server_id = key.split(':')[2]
       {
         id: server_id,
         state: redis.get(key)
       }
     end
   end
-  
+
   def boxes_cache
-    json = redis.get("scruffy/cache/boxes")
+    json = redis.get("scruffy:cache:boxes")
     JSON.load(json).symbolize_keys if json
   end
-  
+
   def store_boxes_cache cache
-    redis.set("scruffy/cache/boxes", JSON.dump(cache))
+    redis.set("scruffy:cache:boxes", JSON.dump(cache))
   end
-  
+
   def pinkies_cache
-    json = redis.get("scruffy/cache/pinkies")
+    json = redis.get("scruffy:cache:pinkies")
     JSON.load(json).symbolize_keys if json
   end
-  
+
   def store_pinkies_cache cache
-    redis.set("scruffy/cache/pinkies", JSON.dump(cache))
+    redis.set("scruffy:cache:pinkies", JSON.dump(cache))
   end
-  
+
   def stains_cache
-    json = redis.get("scruffy/cache/stains")
+    json = redis.get("scruffy:cache:stains")
     JSON.load(json).symbolize_keys if json
   end
-  
+
   def store_stains_cache cache
-    redis.set("scruffy/cache/stains", JSON.dump(cache))
+    redis.set("scruffy:cache:stains", JSON.dump(cache))
+  end
+
+  def store_box_info id, ip, type, started_at, tags
+    redis.set("box:#{id}", JSON.dump(
+      id: id,
+      ip: ip,
+      type: type,
+      started_at: started_at.to_i,
+      tags: tags
+    ))
+  end
+  
+  def del_box_info id
+    redis.del("box:#{id}")
   end
 end
 

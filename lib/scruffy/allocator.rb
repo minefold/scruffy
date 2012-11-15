@@ -32,8 +32,20 @@ class Allocator
       sum + pinky.servers.count
     end
   end
-
+  
   def excess_pinkies
+    excess_slots = server_slots_available - SERVER_BUFFER
+    idle_pinkies_close_to_hour_end.select do |pinky|
+      box = @boxes.by_id(pinky.id)
+      
+      excess_capacity -= box.type.server_slots
+      
+      excess_capacity >= 0
+    end
+    
+  end
+
+  def idle_pinkies_close_to_hour_end
     idle_pinkies.select do |pinky|
       box = @boxes.by_id(pinky.id)
       box.uptime_mins % 60 > 55
