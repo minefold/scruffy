@@ -7,7 +7,7 @@ class BoxType
     :ram_slot,
     :players_per_slot
 
-    ECUS_PER_WORLD = 1.5
+    ECUS_PER_SERVER = 1.5
     RAM_PER_PLAYER = 128
     OS_RAM_BUFFER = 0.1 # let the OS have this much ram
 

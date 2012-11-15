@@ -17,7 +17,7 @@ class Pinkies < Array
 
       servers = @servers.select{|ps| ps[:pinky_id] == pinky_id }.map do |ps|
         ss = server_states.find{|ss| ss[:id] == ps[:id]}
-        
+
         Server.new(
           ps[:id],
           ss && ss[:state],
@@ -46,6 +46,10 @@ class Pinkies < Array
     @states.map{|ps| ps[:id]}
   end
 
+  def server_ids
+    self.inject([]) {|ids, pinky| (ids << pinky.servers.ids).flatten }
+  end
+
   def pinky_starting! id
     @bus.set_pinky_state id, :starting
     update!
@@ -63,5 +67,9 @@ class Pinkies < Array
 
   def delete! id
     @bus.del_pinky_state id
+  end
+
+  def stop_server! pinky_id, server_id
+    @bus.queue_pinky_job pinky_id, 'stop', serverId: server_id
   end
 end

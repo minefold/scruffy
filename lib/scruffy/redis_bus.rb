@@ -6,6 +6,7 @@ require 'json'
 
 class RedisBus
   def redis
+    # TODO use ENV['REDIS_URL']
     @redis ||= Redis.new(:host => "0.0.0.0", :port => 6379, :driver => :hiredis)
   end
 
@@ -41,14 +42,14 @@ class RedisBus
       JSON.load(redis.get(key)).merge(
         id: server_id,
         pinky_id: pinky_id,
-      )
+      ).symbolize_keys
     end
 
   end
 
   def server_states
-    redis.keys("server:state:*").map do |key|
-      server_id = key.split(':')[2]
+    redis.keys("server:*:state").map do |key|
+      server_id = key.split(':')[1]
       {
         id: server_id,
         state: redis.get(key)
@@ -92,9 +93,24 @@ class RedisBus
       tags: tags
     ))
   end
-  
+
   def del_box_info id
     redis.del("box:#{id}")
+  end
+  
+  def queue_pinky_job pinky_id, name, args = {}
+    redis.lpush("pinky:#{pinky_id}:in", JSON.dump({
+      name: name
+    }.merge(args)))
+  end
+
+  # TODO this stuff belongs in Minefold not Party Cloud
+  def shared_servers
+    redis.smembers("servers:shared")
+  end
+
+  def connected_players
+    redis.hgetall("players:playing")
   end
 end
 

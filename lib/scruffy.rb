@@ -29,6 +29,7 @@ class Scruffy
     # load previous scruffy caches
     @boxes_cache = EntityStateCache.deserialize(@bus.boxes_cache) || []
     @pinkies_cache = EntityStateCache.deserialize(@bus.pinkies_cache) || []
+    @stains_cache = EntityStateCache.deserialize(@bus.stains_cache) || []
 
     @boxes.update!
     @pinkies.update!
@@ -128,6 +129,8 @@ class Scruffy
 
     @pinkies_cache.diff! 'pinky', @pinkies
     @bus.store_pinkies_cache @pinkies_cache.serialize
+
+    @bus.store_stains_cache @stains_cache.serialize
   end
 
   def report
@@ -148,7 +151,8 @@ class Scruffy
         state: pinky.state
 
       pinky.servers.each do |server|
-        log.info server_id: server.id, state: server.state
+        log.info event: 'server', server_id: server.id, 
+          state: server.state, port: server.port
       end
     end
     server_count = @pinkies.inject(0){|i, pinky| i + pinky.servers.count }
