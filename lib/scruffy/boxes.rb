@@ -19,7 +19,7 @@ class Boxes < Array
   end
 
   def start_new box_type
-    @cluster.start_new box_type, { "Name" => "pinky" }
+    @cluster.start_new box_type.id, { "Name" => "pinky", "environment" => "staging" }
   end
 
   def terminate id

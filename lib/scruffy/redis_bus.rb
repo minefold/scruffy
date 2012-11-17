@@ -6,8 +6,8 @@ require 'json'
 
 class RedisBus
   def redis
-    # TODO use ENV['REDIS_URL']
-    @redis ||= Redis.new(:host => "0.0.0.0", :port => 6379, :driver => :hiredis)
+    uri = URI.parse(ENV['REDIS_URL'] || 'redis://localhost:6379/')
+    @redis ||= Redis.new(host: uri.host, port: uri.port, password: uri.password, driver: :hiredis)
   end
 
   def pinky_heartbeats

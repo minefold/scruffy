@@ -7,7 +7,7 @@ class BoxType
     :ram_slot,
     :players_per_slot
 
-    ECUS_PER_SERVER = 1.5
+    ECUS_PER_SERVER = 1.25
     RAM_PER_PLAYER = 128
     OS_RAM_BUFFER = 0.1 # let the OS have this much ram
 
@@ -21,6 +21,7 @@ class BoxType
   def self.definitions
     [
       BoxType.new('m1.small', 1.7 * 1024, 1, AMIS['64bit']),
+      BoxType.new('c1.medium', 1.7 * 1024, 5, AMIS['64bit']),
       BoxType.new('c1.xlarge', 7.0 * 1024, 20, AMIS['64bit']),
       BoxType.new('cc2.8xlarge', 60.5 * 1024, 88, AMIS['64bit']),
     ]

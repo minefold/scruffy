@@ -9,12 +9,13 @@ require 'scruffy'
 STDOUT.sync = true
 
 while true
-  boxes = Boxes.new(LocalCluster.new)
+  boxes = Boxes.new(FogCluster.new)
+  # boxes = Boxes.new(LocalCluster.new)
   pinkies = Pinkies.new(RedisBus.new)
   scruffy = Scruffy.new(RedisBus.new, boxes, pinkies)
-  
+
   scruffy.sweep!
   scruffy.report
-  
+
   sleep 5
 end

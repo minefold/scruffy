@@ -32,17 +32,17 @@ class Allocator
       sum + pinky.servers.count
     end
   end
-  
+
   def excess_pinkies
     excess_slots = server_slots_available - SERVER_BUFFER
     idle_pinkies_close_to_hour_end.select do |pinky|
       box = @boxes.by_id(pinky.id)
-      
-      excess_capacity -= box.type.server_slots
-      
-      excess_capacity >= 0
+
+      excess_slots -= box.type.server_slots
+
+      excess_slots >= 0
     end
-    
+
   end
 
   def idle_pinkies_close_to_hour_end
@@ -65,7 +65,7 @@ class Allocator
       # player_count == 0 && world_count == 0 && !keepalive?(box)
     end
   end
-  
+
   def slot_count box
     (box.type.ecus / ECUS_PER_SERVER).floor
   end

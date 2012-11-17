@@ -28,7 +28,7 @@ class LocalCluster
     LocalCluster.save(s + [{
         id: id,
         ip: '10.10.10.15',
-        type: box_type.id,
+        type: box_type,
         state: :starting,
         started_at: Time.now.to_i,
         tags: tags
