@@ -9,7 +9,7 @@ module Fold
     end
 
     def region
-      ENV['EC2_REGION'] || 'us-east-1'
+      ENV['AWS_REGION'] || 'us-east-1'
     end
 
     def compute_cloud

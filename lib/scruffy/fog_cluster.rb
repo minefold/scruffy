@@ -2,7 +2,7 @@
 class FogCluster
   def servers
     servers = compute_cloud.servers.select do |s|
-      tag_filter.all? {|k,v| s.tags[k.to_s] == v.to_s}
+      s.state != 'terminated' && tag_filter.all? {|k,v| s.tags[k.to_s] == v.to_s}
     end
 
     servers.map do |s|
@@ -16,20 +16,44 @@ class FogCluster
       }
     end
   end
-  
-  def start_new box_type, tags
-    puts "starting new #{box_type} #{tags}"
+
+  def start_new box_type, ami, tags
+    private_key_path = File.join(File.dirname(__FILE__), '../../config/aws.pem')
+    raise "private_key_path not found" unless File.exist?(private_key_path)
+
+    instance = compute_cloud.servers.bootstrap({
+      private_key_path: private_key_path,
+      username: 'ubuntu',
+      groups: %W{default pinky},
+      flavor_id: box_type,
+      image_id: ami,
+      user_data: cloud_init_script,
+      tags: tags,
+      block_device_mapping: [
+        {'DeviceName' => '/dev/sdb', 'VirtualName' => 'ephemeral0'},
+        {'DeviceName' => '/dev/sdc', 'VirtualName' => 'ephemeral1'},
+        {'DeviceName' => '/dev/sdd', 'VirtualName' => 'ephemeral2'},
+        {'DeviceName' => '/dev/sde', 'VirtualName' => 'ephemeral3'}
+      ]
+    })
+
+    instance.id
   end
   
+  def terminate id
+    instance = compute_cloud.servers.get(id)
+    instance.destroy
+  end
+
   def compute_cloud
     @compute_cloud ||= Fog::Compute.new({
       :provider                 => 'AWS',
       :aws_secret_access_key    => ENV['AWS_SECRET_KEY'],
       :aws_access_key_id        => ENV['AWS_ACCESS_KEY'],
-      :region                   => ENV['EC2_REGION'] || 'us-east-1'
+      :region                   => ENV['AWS_REGION'] || 'us-east-1'
     })
   end
-  
+
   def box_state ec2_state
     if ec2_state == 'running'
       'up'
@@ -44,7 +68,7 @@ class FogCluster
       "environment" => "staging"
     }
   end
-  
+
   def pinky_branch
     'master'
   end
@@ -52,7 +76,7 @@ class FogCluster
   def log_server
     'logs.partycloud.com'
   end
-  
+
   def cloud_init_script
     <<-EOS
 #!/bin/bash
@@ -95,13 +119,13 @@ cat<<EOF > /tmp/attributes.json
   "run_list":[
     "recipe[rsyslog]",
     "recipe[relp::client]",
+    "recipe[configurator]",
     "recipe[pinky::deploy]"
   ]
 }
 EOF
 
 chef-solo -c /home/ubuntu/chef/ec2/solo.rb -j /tmp/attributes.json
-apt-get -y install lzop
   EOS
   end
 end

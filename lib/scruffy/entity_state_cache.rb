@@ -39,7 +39,7 @@ class EntityStateCache < Array
   end
   
   def diff! name, entities
-    log = Logger.new
+    log = Mutli::Logger.new
     (entities.ids - ids).each do |entity_id|
       log.info event: "#{name}_found", id: entity_id, action: 'adding to cache'
 

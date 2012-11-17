@@ -22,7 +22,7 @@ class Scruffy
     @boxes = boxes
     @pinkies = pinkies
 
-    @log = Logger.new
+    @log = Mutli::Logger.new
   end
 
   def sweep!
@@ -92,12 +92,18 @@ class Scruffy
     allocator = Allocator.new(@boxes, @pinkies)
 
     if allocator.low_capacity?
+      box_type = allocator.new_box_type
+      
       log.warn event: 'low_capacity',
         used: allocator.server_slots_used,
         available: allocator.server_slots_available,
-        action: 'starting new box'
+        action: 'starting new box',
+        type: box_type.id
 
-      @boxes.start_new BoxType.find('c1.xlarge')
+      box_id = @boxes.start_new allocator.new_box_type
+      
+      log.info event: 'box_created',
+        id: box_id
     end
   end
 
@@ -134,7 +140,7 @@ class Scruffy
   end
 
   def report
-    log = Logger.new(event: 'sweep')
+    log = Mutli::Logger.new(event: 'sweep')
     @boxes.each do |box|
       log.info event: :box,
         id: box.id,

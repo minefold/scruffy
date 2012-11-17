@@ -69,4 +69,8 @@ class Allocator
   def slot_count box
     (box.type.ecus / ECUS_PER_SERVER).floor
   end
+  
+  def new_box_type
+    BoxType.find('c1.xlarge')
+  end
 end

@@ -5,9 +5,6 @@ EC2_ACCESS_KEY="AKIAJPN5IJVEBB2QE35A"
 MONGOHQ_URL='mongodb://localhost/'
 REDIS_URI="redis://localhost:6379/"
 
-Fold.workers = :local
-Fold.worker_user = ENV['USER']
-
 StatsD.logger = Logger.new(STDOUT) #Logger.new('/dev/null')
 StatsD.mode = :development
 

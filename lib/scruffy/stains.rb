@@ -8,7 +8,7 @@ class Stain
     @boxes_cache, @pinkies_cache, @stains_cache = boxes_cache, pinkies_cache, stains_cache
     @boxes, @pinkies = boxes, pinkies
 
-    @log = Logger.new
+    @log = Mutli::Logger.new
   end
   
   class << self

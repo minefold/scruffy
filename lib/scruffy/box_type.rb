@@ -14,8 +14,8 @@ class BoxType
     INSTANCE_PLAYER_BUFFER = 5 # needs to be space for 5 players to start a world on a box
 
     AMIS = {
-      '64bit' => 'ami-1176c278',
-        'HVM' => 'ami-8ff445e6'
+      '64bit' => 'ami-e3b0378a',
+        'HVM' => 'ami-a1b037c8'
     }
 
   def self.definitions
@@ -23,7 +23,7 @@ class BoxType
       BoxType.new('m1.small', 1.7 * 1024, 1, AMIS['64bit']),
       BoxType.new('c1.medium', 1.7 * 1024, 5, AMIS['64bit']),
       BoxType.new('c1.xlarge', 7.0 * 1024, 20, AMIS['64bit']),
-      BoxType.new('cc2.8xlarge', 60.5 * 1024, 88, AMIS['64bit']),
+      BoxType.new('cc2.8xlarge', 60.5 * 1024, 88, AMIS['HVM']),
     ]
   end
 
