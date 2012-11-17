@@ -28,7 +28,7 @@ class Logger
   end
 
   def print_log data
-    if ENV['LOGFMT'] != 'human'
+    if ENV['LOGFMT'] == 'json'
       print_log_json data
     else
       print_log_human data

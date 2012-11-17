@@ -6,6 +6,7 @@ gem 'fog', '~> 1.7.0'
 
 gem 'mongo'
 gem 'bson_ext'
+gem 'foreman'
 
 gem "redis", "~> 3.0.1"
 gem "hiredis", "~> 0.4.5"
