@@ -11,9 +11,10 @@ gem 'foreman'
 gem "redis", "~> 3.0.1"
 gem "hiredis", "~> 0.4.5"
 
+gem 'colored'
+
 group :development do
   gem 'pry'
-  gem 'colored'
 end
 
 group :test do

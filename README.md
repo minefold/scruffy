@@ -78,6 +78,7 @@ Player
 AWS_SECRET_KEY
 AWS_ACCESS_KEY
 AWS_REGION
+REDIS_URL
 
 CLUSTER (default:fog)  # use local for testing with local VM
 LOGFMT (default:human) # also supports json
