@@ -1,19 +1,22 @@
 # Scruffy
+© Mütli Corp. By [Dave Newman](http://github.com/whatupdave).
 
 ![Scruffy](http://www.harshil.in/fun/scruffy/scruffy.png)
+
+
 
 1. collect the state of the world
   - collect AWS state (query AWS)
   - collect pinky state (read from redis)
   - collect prism state (read from redis)
-  
+
 2. look for problems
   - duplicate servers running
   - aws box appeared
   - aws box disappeared
   - server appeared
   - server disappeared
-  
+
 3. rebalance (potentially move to brain)
   - shutdown empty Shared servers
   - bring up new boxes when at capacity
@@ -42,7 +45,7 @@ Box - Amazon ec2 instance
   started_at
   instance_type
   state (starting|up|stopping) # this is the state of the Amazon instance
-  
+
 Pinky
   id # same as Box#id
   state (starting|up|stopping)
@@ -58,7 +61,7 @@ Server
 
 Player
   - id
-  
+
 ## pinky coming up
 * (scruffy creates EC2 instance - gets instance id)
 * (scruffy sets box to starting)
@@ -74,11 +77,22 @@ Player
 * (scruffy sets box state to stopping)
 * (scruffy terminates box)
 
-## Config Vars
-AWS_SECRET_KEY
-AWS_ACCESS_KEY
-AWS_REGION
-REDIS_URL
 
-CLUSTER (default:fog)  # use local for testing with local VM
-LOGFMT (default:human) # also supports json
+## Usage
+
+    foreman start
+
+### Environment
+
+*Required*
+
+    AWS_ACCESS_KEY
+    AWS_SECRET_KEY
+    AWS_REGION
+    REDIS_URL
+    BUGSNAG
+
+*Optional*
+
+    SCRUFFY_ENV (staging|production)
+    SCRUFFY_ROOT

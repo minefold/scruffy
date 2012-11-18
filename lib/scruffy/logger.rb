@@ -14,7 +14,7 @@ module Mutli
     def warn data
       out('warn', data)
     end
-  
+
     def error e, data
       data["error"] = e
       out("error", data)
@@ -29,10 +29,10 @@ module Mutli
     end
 
     def print_log data
-      if ENV['LOGFMT'] == 'json'
-        print_log_json data
-      else
+      if Scruffy.env == 'development'
         print_log_human data
+      else
+        print_log_json data
       end
     end
 
@@ -44,9 +44,9 @@ module Mutli
       attrs = data.select {|k,v|
         ![:ts, :level, :event].include?(k)
       }.map{|k,v| "#{k}=#{quote_unspaced v}"}.sort
-    
+
       msg = "#{data[:ts]} [#{data[:level]}] #{data[:event]} #{attrs.join(' ')}"
-    
+
       case data[:level]
       when 'warn'
         puts msg.yellow
@@ -56,7 +56,7 @@ module Mutli
         puts msg
       end
     end
-  
+
     def quote_unspaced s
       s.to_s.include?(' ') ? %Q{"#{s}"} : s
     end

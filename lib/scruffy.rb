@@ -93,7 +93,7 @@ class Scruffy
 
     if allocator.low_capacity?
       box_type = allocator.new_box_type
-      
+
       log.warn event: 'low_capacity',
         used: allocator.server_slots_used,
         available: allocator.server_slots_available,
@@ -101,7 +101,7 @@ class Scruffy
         type: box_type.id
 
       box_id = @boxes.start_new allocator.new_box_type
-      
+
       log.info event: 'box_created',
         id: box_id
     end
@@ -157,7 +157,7 @@ class Scruffy
         state: pinky.state
 
       pinky.servers.each do |server|
-        log.info event: 'server', server_id: server.id, 
+        log.info event: 'server', server_id: server.id,
           state: server.state, port: server.port
       end
     end
@@ -167,4 +167,13 @@ class Scruffy
       pinkies: @pinkies.count,
       servers: server_count
   end
+
+  def self.env
+    ENV['SCRUFFY_ENV'] || 'development'
+  end
+
+  def self.root
+    ENV['SCRUFFY_ROOT'] || File.expand_path('../..', __FILE__)
+  end
+
 end

@@ -9,7 +9,7 @@ require 'scruffy'
 STDOUT.sync = true
 
 while true
-  cluster = if ENV['CLUSTER'] == 'local'
+  cluster = if Scruffy.env == 'development'
     LocalCluster.new
   else
     FogCluster.new
