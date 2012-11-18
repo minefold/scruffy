@@ -22,12 +22,13 @@ class LocalCluster
     end
   end
 
-  def start_new box_type, tags
+  def start_new box_type, ami, tags
     s = servers
     id = "local-#{s.size}"
     LocalCluster.save(s + [{
         id: id,
         ip: '10.10.10.15',
+        ami: ami,
         type: box_type,
         state: :starting,
         started_at: Time.now.to_i,
