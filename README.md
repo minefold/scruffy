@@ -1,5 +1,5 @@
 # Scruffy
-© Mütli Corp. By [Dave Newman](http://github.com/whatupdave).
+[![Build Status](https://magnum.travis-ci.com/minefold/scruffy.png?token=yfARxv3oq7ZT3ZbmJWVN)](http://magnum.travis-ci.com/minefold/scruffy) © Mütli Corp. By [Dave Newman](http://github.com/whatupdave).
 
 ![Scruffy](http://www.harshil.in/fun/scruffy/scruffy.png)
 
