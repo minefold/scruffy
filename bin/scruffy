@@ -8,7 +8,16 @@ require 'scruffy'
 
 STDOUT.sync = true
 
-while true
+Bugsnag.configure do |config|
+  config.api_key = ENV['BUGSNAG']
+  config.release_stage = Scruffy.env
+  config.project_root = Scruffy.root
+  config.notify_release_stages = ['production', 'staging']
+  config.use_ssl = true
+end
+
+
+loop do
   cluster = if Scruffy.env == 'development'
     LocalCluster.new
   else

@@ -13,6 +13,8 @@ gem "hiredis", "~> 0.4.5"
 
 gem 'colored'
 
+gem 'bugsnag'
+
 group :development do
   gem 'pry'
 end
