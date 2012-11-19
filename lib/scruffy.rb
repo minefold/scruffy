@@ -96,7 +96,7 @@ class Scruffy
 
       log.warn event: 'low_capacity',
         used: allocator.server_slots_used,
-        available: allocator.server_slots_available,
+        available: allocator.total_server_slots,
         action: 'starting new box',
         type: box_type.id
 
@@ -114,7 +114,7 @@ class Scruffy
       log.warn event: 'excess_capacity',
         id: pinky.id,
         used: allocator.server_slots_used,
-        available: allocator.server_slots_available,
+        available: allocator.total_server_slots,
         action: 'terminating box'
 
       @pinkies.pinky_stopping! pinky.id
@@ -157,15 +157,22 @@ class Scruffy
         state: pinky.state
 
       pinky.servers.each do |server|
-        log.info event: 'server', server_id: server.id,
-          state: server.state, port: server.port
+        log.info event: 'server',
+          server: server.id,
+          state: server.state,
+          port: server.port,
+          pinky: pinky.id
       end
     end
-    server_count = @pinkies.inject(0){|i, pinky| i + pinky.servers.count }
+
+    allocator = Allocator.new(@boxes, @pinkies)
+
     log.info event: :summary,
       boxes: @boxes.count,
       pinkies: @pinkies.count,
-      servers: server_count
+      slots_total: allocator.total_server_slots,
+      slots_available: (allocator.total_server_slots - allocator.server_slots_used),
+      slots_used: allocator.server_slots_used
   end
 
   def self.env

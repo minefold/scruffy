@@ -105,8 +105,12 @@ class RedisBus
   end
 
   # TODO this stuff belongs in Minefold not Party Cloud
-  def shared_servers
+  def shared_server_ids
     redis.smembers("servers:shared")
+  end
+  
+  def del_shared_server server_id
+    redis.srem("servers:shared", server_id)
   end
 
   def connected_players

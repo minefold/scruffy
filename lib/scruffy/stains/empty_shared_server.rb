@@ -19,11 +19,18 @@ class EmptySharedServer < Stain
   end
 
   def clean
-    shared_servers = @bus.shared_servers
+    shared_server_ids = @bus.shared_server_ids
     connected_players = @bus.connected_players
+    
+    (shared_server_ids - @pinkies.server_ids).each do |server_id|
+      log.info event: 'shared_server_shutdown',
+        server: server_id
+      
+      @bus.del_shared_server(server_id)
+    end
 
     @pinkies.each do |pinky|
-      (pinky.servers.ids & shared_servers).each do |server_id|
+      (pinky.servers.ids & shared_server_ids).each do |server_id|
         if server_players(connected_players, server_id).size > 0
           remove_stain(server_id, :shared_server_empty)
           remove_stain(server_id, :shared_server_empty_stopping)

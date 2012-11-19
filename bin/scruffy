@@ -18,6 +18,7 @@ end
 
 
 loop do
+  # TODO trap TERM and wait until sweep is finished
   cluster = if Scruffy.env == 'development'
     LocalCluster.new
   else

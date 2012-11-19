@@ -11,10 +11,10 @@ class Allocator
   def low_capacity?
     !@boxes.starting.any? &&
       !@pinkies.starting.any? &&
-      (server_slots_available <= SERVER_BUFFER)
+      (total_server_slots <= SERVER_BUFFER)
   end
 
-  def server_slots_available
+  def total_server_slots
     @pinkies.inject(0) do |sum, pinky|
       box = @boxes.by_id(pinky.id)
       if box.nil?
@@ -34,7 +34,7 @@ class Allocator
   end
 
   def excess_pinkies
-    excess_slots = server_slots_available - SERVER_BUFFER
+    excess_slots = total_server_slots - SERVER_BUFFER
     idle_pinkies_close_to_hour_end.select do |pinky|
       box = @boxes.by_id(pinky.id)
 
