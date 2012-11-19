@@ -4,7 +4,6 @@ gem 'rake'
 
 gem 'fog', '~> 1.7.0'
 
-gem 'mongo'
 gem 'bson_ext'
 gem 'foreman'
 
