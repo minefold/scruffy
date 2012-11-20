@@ -154,7 +154,10 @@ class Scruffy
     @pinkies.each do |pinky|
       log.info event: :pinky,
         id: pinky.id,
-        state: pinky.state
+        state: pinky.state,
+        ram_free: pinky.free_ram_mb,
+        disk_free: pinky.free_disk_mb,
+        cpu_idle: pinky.idle_cpu
 
       pinky.servers.each do |server|
         log.info event: 'server',

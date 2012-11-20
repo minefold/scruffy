@@ -29,9 +29,9 @@ class Pinkies < Array
       self << Pinky.new(
         pinky_id,
         state && state[:state],
-        hb && hb[:free_disk_mb],
-        hb && [:free_ram_mb],
-        hb && [:idle_cpu],
+        hb && hb['freeDiskMb'],
+        hb && hb['freeRamMb'],
+        hb && hb['idleCpu'],
         servers
       )
     end
