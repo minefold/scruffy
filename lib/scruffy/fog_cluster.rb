@@ -65,7 +65,7 @@ class FogCluster
   def tag_filter
     {
       "Name" => "pinky",
-      "environment" => "staging"
+      "environment" => Scruffy.env
     }
   end
 

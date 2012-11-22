@@ -48,7 +48,7 @@ class Allocator
   def idle_pinkies_close_to_hour_end
     idle_pinkies.select do |pinky|
       box = @boxes.by_id(pinky.id)
-      box.uptime_mins % 60 > 55
+      box and box.uptime_mins % 60 > 55
     end
   end
 
