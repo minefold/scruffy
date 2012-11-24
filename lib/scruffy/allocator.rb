@@ -1,8 +1,8 @@
 # enough capacity is more than 3 server slots available or boxes/pinkies starting
 class Allocator
-  ECUS_PER_SLOT = (ENV['ECUS_PER_SLOT'] || 1)
-  RAM_MB_PER_SLOT = (ENV['RAM_MB_PER_SLOT'] || 512)
-  SERVER_BUFFER = (ENV['SERVER_BUFFER'] || 3)
+  ECUS_PER_SLOT = ((ENV['ECUS_PER_SLOT'] and ENV['ECUS_PER_SLOT'].to_i) || 1)
+  RAM_MB_PER_SLOT = ((ENV['RAM_MB_PER_SLOT'] and ENV['RAM_MB_PER_SLOT'].to_i) || 512)
+  SERVER_BUFFER = ((ENV['SERVER_BUFFER'] and ENV['SERVER_BUFFER'].to_i) || 3)
 
   def initialize boxes, pinkies
     @boxes, @pinkies = boxes, pinkies
