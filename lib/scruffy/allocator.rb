@@ -1,8 +1,8 @@
 # enough capacity is more than 3 server slots available or boxes/pinkies starting
 class Allocator
-  ECUS_PER_SERVER = 1.5
-  RAM_MB_PER_SERVER = 256
-  SERVER_BUFFER = 3
+  ECUS_PER_SLOT = (ENV['ECUS_PER_SLOT'] || 1)
+  RAM_MB_PER_SLOT = (ENV['RAM_MB_PER_SLOT'] || 512)
+  SERVER_BUFFER = (ENV['SERVER_BUFFER'] || 3)
 
   def initialize boxes, pinkies
     @boxes, @pinkies = boxes, pinkies
@@ -38,7 +38,7 @@ class Allocator
     idle_pinkies_close_to_hour_end.select do |pinky|
       box = @boxes.by_id(pinky.id)
 
-      excess_slots -= box.type.server_slots
+      excess_slots -= slot_count(box)
 
       excess_slots >= 0
     end
@@ -67,9 +67,10 @@ class Allocator
   end
 
   def slot_count box
-    (box.type.ecus / ECUS_PER_SERVER).floor
+    [(box.type.ram_mb / RAM_MB_PER_SLOT).floor,
+     (box.type.ecus / ECUS_PER_SLOT).floor].min
   end
-  
+
   def new_box_type
     BoxType.find('cc2.8xlarge')
   end

@@ -29,11 +29,12 @@ module Mutli
     end
 
     def print_log data
-      if Scruffy.env == 'development'
-        print_log_human data
-      else
-        print_log_json data
-      end
+      print_log_human data
+      # if Scruffy.env == 'development'
+      #   print_log_human data
+      # else
+      #   print_log_json data
+      # end
     end
 
     def print_log_json data
@@ -45,7 +46,7 @@ module Mutli
         ![:ts, :level, :event].include?(k)
       }.map{|k,v| "#{k}=#{quote_unspaced v}"}.sort
 
-      msg = "#{data[:ts]} [#{data[:level]}] #{data[:event]} #{attrs.join(' ')}"
+      msg = "[#{data[:level]}] #{data[:event]} #{attrs.join(' ')}"
 
       case data[:level]
       when 'warn'

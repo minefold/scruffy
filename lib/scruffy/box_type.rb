@@ -1,17 +1,8 @@
 class BoxType
   attr_reader :id,
-    :ram,
+    :ram_mb,
     :ecus,
-    :ami,
-    :player_cap,
-    :ram_slot,
-    :players_per_slot
-
-    ECUS_PER_SERVER = 1.25
-    RAM_PER_PLAYER = 128
-    OS_RAM_BUFFER = 0.1 # let the OS have this much ram
-
-    INSTANCE_PLAYER_BUFFER = 5 # needs to be space for 5 players to start a world on a box
+    :ami
 
     AMIS = {
       '64bit' => 'ami-e3b0378a',
@@ -31,11 +22,7 @@ class BoxType
     definitions.find{|box_type| box_type.id == id }
   end
 
-  def initialize id, ram, ecus, ami
-    @id, @ram, @ecus, @ami = id, ram, ecus, ami
-  end
-  
-  def server_slots
-    (ecus / ECUS_PER_SERVER).round
+  def initialize id, ram_mb, ecus, ami
+    @id, @ram_mb, @ecus, @ami = id, ram_mb, ecus, ami
   end
 end
