@@ -13,7 +13,7 @@ class RedisBus
   def pinky_heartbeats
     redis.keys("pinky:*:heartbeat").map do |key|
       id = key.split(':')[1]
-      JSON.load(redis.get(key)).merge(id: id)
+      JSON.load(redis.get(key)).merge(id: id).symbolize_keys
     end
   end
 

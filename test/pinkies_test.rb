@@ -3,9 +3,9 @@ describe Pinkies do
     bus = MiniTest::Mock.new
     bus.expect(:pinky_heartbeats, [
       id: "i-12345",
-      free_disk_mb: 73132,
-      free_ram_mb: 632,
-      idle_cpu: 88,
+      freeDiskMb: 73132,
+      freeRamMb: 632,
+      idleCpu: 88,
     ])
     bus.expect(:pinky_states, [
       id: "i-12345",

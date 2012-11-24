@@ -71,6 +71,6 @@ class Allocator
   end
   
   def new_box_type
-    BoxType.find('c1.xlarge')
+    BoxType.find('cc2.8xlarge')
   end
 end
