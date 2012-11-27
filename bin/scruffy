@@ -27,7 +27,8 @@ loop do
 
   boxes = Boxes.new(cluster)
   pinkies = Pinkies.new(RedisBus.new)
-  scruffy = Scruffy.new(RedisBus.new, boxes, pinkies)
+  servers = Servers.new(RedisBus.new)
+  scruffy = Scruffy.new(RedisBus.new, boxes, pinkies, servers)
 
   scruffy.sweep!
   scruffy.report

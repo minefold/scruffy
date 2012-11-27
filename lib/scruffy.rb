@@ -17,22 +17,25 @@ require "scruffy/allocator"
 class Scruffy
   attr_reader :log
 
-  def initialize bus, boxes, pinkies
+  def initialize bus, boxes, pinkies, servers
     @bus = bus
     @boxes = boxes
     @pinkies = pinkies
+    @servers = servers
 
     @log = Mutli::Logger.new
   end
 
   def sweep!
     # load previous scruffy caches
-    @boxes_cache = EntityStateCache.deserialize(@bus.boxes_cache) || []
-    @pinkies_cache = EntityStateCache.deserialize(@bus.pinkies_cache) || []
-    @stains_cache = EntityStateCache.deserialize(@bus.stains_cache) || []
+    @boxes_cache = EntityStateCache.deserialize(@bus.cache(:boxes)) || []
+    @pinkies_cache = EntityStateCache.deserialize(@bus.cache(:pinkies)) || []
+    @servers_cache = EntityStateCache.deserialize(@bus.cache(:servers)) || []
+    @stains_cache = EntityStateCache.deserialize(@bus.cache(:stains)) || []
 
     @boxes.update!
     @pinkies.update!
+    @servers.update!
 
     update_states
     find_and_clean_stains
@@ -46,6 +49,9 @@ class Scruffy
     find_gone_pinkies
     find_new_pinkies
 
+    find_gone_servers
+    find_new_servers
+
     start_boxes
     stop_boxes
   end
@@ -54,6 +60,7 @@ class Scruffy
     (@boxes_cache.ids - @boxes.ids).each do |box_id|
       log.info event: 'box_gone', id: box_id
 
+      @bus.del_box_info(box_id)
       @bus.del_box_info(box_id)
     end
   end
@@ -72,7 +79,7 @@ class Scruffy
   def find_gone_pinkies
     (@boxes_cache.ids - @boxes.ids).each do |box_id|
       if pinky = @pinkies.by_id(box_id)
-        if pinky.stopping?
+        if pinky.stopping? or pinky.down?
           log.info event: 'box_gone', id: box_id, action: 'removing pinky'
           @pinkies.delete! box_id
         end
@@ -88,14 +95,33 @@ class Scruffy
     end
   end
 
+  def find_gone_servers
+    (@boxes_cache.ids - @boxes.ids).each do |box_id|
+      if pinky = @pinkies.by_id(box_id)
+        if pinky.stopping? or pinky.down?
+          log.info event: 'box_gone', id: box_id, action: 'removing pinky'
+          @pinkies.delete! box_id
+        end
+      end
+    end
+  end
+
+  def find_new_servers
+    (@boxes.up.ids - @pinkies.ids).each do |box_id|
+      log.info event: 'box_up', id: box_id, action: 'set pinky to starting'
+
+      @pinkies.pinky_starting! box_id
+    end
+  end
+
   def start_boxes
-    allocator = Allocator.new(@boxes, @pinkies)
+    allocator = Allocator.new(@boxes, @pinkies, @servers)
 
     if allocator.low_capacity?
       box_type = allocator.new_box_type
 
       log.warn event: 'low_capacity',
-        used: allocator.server_slots_used,
+        used: allocator.used_server_slots,
         available: allocator.total_server_slots,
         action: 'starting new box',
         type: box_type.id
@@ -108,12 +134,12 @@ class Scruffy
   end
 
   def stop_boxes
-    allocator = Allocator.new(@boxes, @pinkies)
+    allocator = Allocator.new(@boxes, @pinkies, @servers)
 
     allocator.excess_pinkies.each do |pinky|
       log.warn event: 'excess_capacity',
         id: pinky.id,
-        used: allocator.server_slots_used,
+        used: allocator.used_server_slots,
         available: allocator.total_server_slots,
         action: 'terminating box'
 
@@ -124,19 +150,21 @@ class Scruffy
 
   def find_and_clean_stains
     Stain.all.each do |klass|
-      stain = klass.new(@bus, @boxes_cache, @pinkies_cache, @stains_cache, @boxes, @pinkies)
+      stain = klass.new(@bus, @boxes_cache, @pinkies_cache, @stains_cache, @boxes, @pinkies, @servers)
       stain.clean
     end
   end
 
   def update_caches
     @boxes_cache.diff! 'box', @boxes
-    @bus.store_boxes_cache @boxes_cache.serialize
+    @bus.store_cache :boxes, @boxes_cache.serialize
 
     @pinkies_cache.diff! 'pinky', @pinkies
-    @bus.store_pinkies_cache @pinkies_cache.serialize
+    @bus.store_cache :pinkies, @pinkies_cache.serialize
 
-    @bus.store_stains_cache @stains_cache.serialize
+    @bus.store_cache :servers, @servers_cache.serialize
+
+    @bus.store_cache :stains, @stains_cache.serialize
   end
 
   def report
@@ -159,23 +187,24 @@ class Scruffy
         disk_free: pinky.free_disk_mb,
         cpu_idle: pinky.idle_cpu
 
-      pinky.servers.each do |server|
-        log.info event: 'server',
-          server: server.id,
-          state: server.state,
-          port: server.port,
-          pinky: pinky.id
-      end
+      # pinky.servers.each do |server|
+      #   log.info event: 'server',
+      #     server: server.id,
+      #     state: server.state,
+      #     port: server.port,
+      #     pinky: pinky.id
+      # end
     end
 
-    allocator = Allocator.new(@boxes, @pinkies)
+    allocator = Allocator.new(@boxes, @pinkies, @servers)
 
     log.info event: :summary,
       boxes: @boxes.count,
       pinkies: @pinkies.count,
+      players: @servers.players.size,
       slots_total: allocator.total_server_slots,
-      slots_available: (allocator.total_server_slots - allocator.server_slots_used),
-      slots_used: allocator.server_slots_used
+      slots_used: allocator.used_server_slots,
+      slots_available: allocator.available_server_slots
   end
 
   def self.env

@@ -33,4 +33,16 @@ class Box
   def uptime_mins
     ((Time.now - started_at) / 60.0).floor
   end
+  
+  def up?
+    state == :up
+  end
+
+  def stopping?
+    state == :stopping
+  end
+
+  def down?
+    state == :down
+  end
 end

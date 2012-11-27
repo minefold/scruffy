@@ -51,10 +51,8 @@ describe Pinkies do
   it "has servers" do
     pinkies.update!
     pinky = pinkies.first
-    pinky.servers.size.must_equal 2
+    pinky.server_ids.size.must_equal 2
 
-    server = pinky.servers.first
-    server.id.must_equal "6789"
-    server.port.must_equal 10000
+    pinky.server_ids.first.must_equal "6789"
   end
 end

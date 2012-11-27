@@ -39,49 +39,32 @@ class RedisBus
     redis.keys("pinky:*:servers:*").map do |key|
       _, pinky_id, _, server_id = key.split(':')
 
-      JSON.load(redis.get(key)).merge(
+      JSON.load(redis.get(key) || "{}").merge(
         id: server_id,
         pinky_id: pinky_id,
       ).symbolize_keys
     end
-
   end
-
-  def server_states
-    redis.keys("server:*:state").map do |key|
+  
+  def server_info
+    redis.keys("server:*").map do |key|
       server_id = key.split(':')[1]
       {
         id: server_id,
-        state: redis.get(key)
+        state: redis.get("server:#{server_id}:state"),
+        slots: as_int(redis.get("server:#{server_id}:slots")),
+        players: redis.smembers("server:#{server_id}:players"),
       }
     end
   end
 
-  def boxes_cache
-    json = redis.get("scruffy:cache:boxes")
+  def store_cache(name, cache)
+    redis.set("scruffy:cache:#{name}", JSON.dump(cache))
+  end
+
+  def cache(name)
+    json = redis.get("scruffy:cache:#{name}")
     JSON.load(json).symbolize_keys if json
-  end
-
-  def store_boxes_cache cache
-    redis.set("scruffy:cache:boxes", JSON.dump(cache))
-  end
-
-  def pinkies_cache
-    json = redis.get("scruffy:cache:pinkies")
-    JSON.load(json).symbolize_keys if json
-  end
-
-  def store_pinkies_cache cache
-    redis.set("scruffy:cache:pinkies", JSON.dump(cache))
-  end
-
-  def stains_cache
-    json = redis.get("scruffy:cache:stains")
-    JSON.load(json).symbolize_keys if json
-  end
-
-  def store_stains_cache cache
-    redis.set("scruffy:cache:stains", JSON.dump(cache))
   end
 
   def store_box_info id, ip, type, started_at, tags
@@ -97,7 +80,7 @@ class RedisBus
   def del_box_info id
     redis.del("box:#{id}")
   end
-  
+
   def queue_pinky_job pinky_id, name, args = {}
     redis.lpush("pinky:#{pinky_id}:in", JSON.dump({
       name: name
@@ -108,13 +91,18 @@ class RedisBus
   def shared_server_ids
     redis.smembers("servers:shared")
   end
-  
+
   def del_shared_server server_id
     redis.srem("servers:shared", server_id)
   end
 
   def connected_players
     redis.hgetall("players:playing")
+  end
+
+  # returns the number to_i or nil
+  def as_int(number)
+    number and number.to_i
   end
 end
 

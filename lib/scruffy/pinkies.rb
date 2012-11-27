@@ -1,6 +1,4 @@
 class Pinkies < Array
-  attr_accessor :states, :servers, :server_states, :heartbeats
-
   def initialize bus
     @bus = bus
   end
@@ -8,22 +6,15 @@ class Pinkies < Array
   def update!
     self.clear
     @states = @bus.pinky_states
-    @servers = @bus.pinky_servers
-    @server_states = @bus.server_states
+    @pinky_servers = @bus.pinky_servers
     @heartbeats = @bus.pinky_heartbeats
 
     (heartbeat_ids | pinky_state_ids).each do |pinky_id|
       hb = @heartbeats.find{|hb| hb[:id] == pinky_id}
 
-      servers = @servers.select{|ps| ps[:pinky_id] == pinky_id }.map do |ps|
-        ss = server_states.find{|ss| ss[:id] == ps[:id]}
-
-        Server.new(
-          ps[:id],
-          ss && ss[:state],
-          ps[:port]
-        )
-      end
+      server_ids = @pinky_servers.
+        select{|ps| ps[:pinky_id] == pinky_id }.
+        map{|ps| ps[:id] }
 
       state = @states.find{|ps| ps[:id] == pinky_id}
       self << Pinky.new(
@@ -32,7 +23,7 @@ class Pinkies < Array
         hb && hb[:freeDiskMb],
         hb && hb[:freeRamMb],
         hb && hb[:idleCpu],
-        servers
+        server_ids
       )
     end
 
@@ -47,7 +38,11 @@ class Pinkies < Array
   end
 
   def server_ids
-    self.inject([]) {|ids, pinky| (ids << pinky.servers.ids).flatten }
+    self.inject([]) {|ids, pinky| ids + pinky.server_ids }.uniq
+  end
+  
+  def servers
+    self.map(&:servers).flatten
   end
 
   def pinky_starting! id
