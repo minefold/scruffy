@@ -76,6 +76,10 @@ class FogCluster
   def log_server
     'logs.partycloud.com'
   end
+  
+  def configurator_app
+    ENV['CONFIGURATOR'] || 'party-cloud-staging'
+  end
 
   def cloud_init_script
     <<-EOS
@@ -115,7 +119,9 @@ cat<<EOF > /tmp/attributes.json
 {
   "pinky": { "branch": "#{pinky_branch}"},
   "relp": { "server": "#{log_server}" },
-
+  "configurator": {
+    "app": "#{configurator_app}"
+  },
   "run_list":[
     "recipe[rsyslog]",
     "recipe[relp::client]",
