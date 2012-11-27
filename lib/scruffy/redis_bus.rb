@@ -47,7 +47,7 @@ class RedisBus
   end
   
   def server_info
-    redis.keys("server:*").map do |key|
+    redis.keys("server:*:state").map do |key|
       server_id = key.split(':')[1]
       {
         id: server_id,

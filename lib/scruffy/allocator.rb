@@ -25,7 +25,7 @@ class Allocator
       if box.nil? or not box.up?
         sum
       else
-        sum + slot_count(box)
+        sum + slot_count(box.type)
       end
     end
   end
@@ -47,7 +47,7 @@ class Allocator
     idle_pinkies_close_to_hour_end.select do |pinky|
       box = @boxes.by_id(pinky.id)
 
-      excess_slots -= slot_count(box)
+      excess_slots -= slot_count(box.type)
 
       excess_slots >= 0
     end
@@ -79,9 +79,9 @@ class Allocator
     (box_type.ram_mb * RAM_ALLOCATION)
   end
 
-  def slot_count box
-    [(allocated_ram_mb(box.type) / RAM_MB_PER_SLOT).floor,
-     (box.type.ecus / ECUS_PER_SLOT).floor].min
+  def slot_count box_type
+    [(allocated_ram_mb(box_type) / RAM_MB_PER_SLOT).floor,
+     (box_type.ecus / ECUS_PER_SLOT).floor].min
   end
   
   def players_per_slot
@@ -90,5 +90,9 @@ class Allocator
 
   def new_box_type
     BoxType.find('cc2.8xlarge')
+  end
+  
+  def slots_required player_count
+    (player_count / players_per_slot.to_f).ceil
   end
 end

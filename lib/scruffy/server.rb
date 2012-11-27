@@ -23,4 +23,8 @@ class Servers < Array
   def players
     self.inject([]) {|a, s| a + s.players }.uniq
   end
+  
+  def find_id(id)
+    self.find{|s| s.id == id }
+  end
 end

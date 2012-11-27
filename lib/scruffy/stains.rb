@@ -11,6 +11,10 @@ class Stain
     @log = Mutli::Logger.new
   end
   
+  def allocator
+    @allocator ||= Allocator.new(@boxes, @pinkies, @servers)
+  end
+  
   class << self
     attr_reader :all
     
