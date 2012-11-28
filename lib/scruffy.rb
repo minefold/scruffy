@@ -143,8 +143,8 @@ class Scruffy
         available: allocator.total_server_slots,
         action: 'terminating box'
 
-      @pinkies.pinky_stopping! pinky.id
-      @boxes.terminate pinky.id
+      # @pinkies.pinky_stopping! pinky.id
+      # @boxes.terminate pinky.id
     end
   end
 

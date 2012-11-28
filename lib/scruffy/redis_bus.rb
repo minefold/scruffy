@@ -57,6 +57,10 @@ class RedisBus
       }
     end
   end
+  
+  def del_server_state id
+    redis.del("server:#{id}:state")
+  end
 
   def store_cache(name, cache)
     redis.set("scruffy:cache:#{name}", JSON.dump(cache))
