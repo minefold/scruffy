@@ -10,89 +10,69 @@
 #   stop server after 1 minute of emptiness
 
 class EmptySharedServer < Stain
-  EMPTY_DURATION = 1 * 60
-
-  def server_players connected_players, server_id
-    connected_players.find{|server_players| server_players[:id] == server_id }
-  end
-
   def clean
-    shared_server_ids = @bus.shared_server_ids
-    connected_players = @bus.connected_players
-    
-    (shared_server_ids - @pinkies.server_ids).each do |server_id|
-      log.info event: 'shared_server_shutdown',
-        server: server_id
-      
-      @bus.del_shared_server(server_id)
+    no_longer_empty_server_ids.each do |server_id|
+      log.warn event: 'server_no_longer_empty', id: server_id
+      forget server_id
     end
 
-    @pinkies.each do |pinky|
-      (pinky.server_ids & shared_server_ids).each do |server_id|
-        if (server_players(connected_players, server_id) || 0).size > 0
-          remove_stain(server_id, :shared_server_empty)
-          remove_stain(server_id, :shared_server_empty_stopping)
+    currently_empty_servers.each do |stain, server|
+      if stain.duration > 1 * 60
+        log.warn event: 'shared_server_empty',
+          id: stain.id,
+          action: 'shutting down'
+        @pinkies.stop_server! pinky.id, server_id
+        @bus.del_shared_server(server_id)
+        forget server_id
 
-        else
-          if stain = find_stain(server_id, :shared_server_empty_stopping)
-            log.info event: 'empty_server_stopping',
-              pinky: pinky.id,
-              server: server_id,
-              duration: stain.duration
-          else
-            stain = find_stain(server_id, :shared_server_empty) ||
-                    add_stain(server_id, :shared_server_empty)
-
-            if stain.duration < EMPTY_DURATION
-              log.info event: 'empty_server',
-                pinky: pinky.id,
-                server: server_id,
-                duration: stain.duration
-
-            else
-              log.info event: 'empty_server',
-                pinky: pinky.id,
-                server: server_id,
-                duration: stain.duration,
-                action: 'stopping'
-
-              stains_cache.delete(stain.id)
-              add_stain(server_id, :shared_server_empty_stopping)
-              @pinkies.stop_server! pinky.id, server_id
-            end
-          end
-        end
+      else
+        log.info event: 'shared_server_empty',
+          id: stain.id,
+          duration: stain.duration
       end
     end
 
-    current_stains = stains_cache.in_state(:shared_server_empty) +
-                     stains_cache.in_state(:shared_server_empty_stopping)
-
-    (current_stains.ids - @pinkies.server_ids).each do |stain_id|
-      log.info event: 'empty_server_gone', server: stain_id
-      stains_cache.delete(stain_id)
+    new_empty_servers.each do |server|
+      log.warn event: 'shared_server_empty', id: server.id
+      notice server.id
     end
   end
 
-  def find_stain(id, state)
-    stains_cache.find{|s| s.id == id && s.state == state }
+  def new_empty_servers
+    (empty_shared_server_ids - noticed.ids).map do |server_id|
+      @servers.find_id(server_id)
+    end
   end
 
-  def empty_stains
-    stains_cache.in_state(:shared_server_empty)
+  def currently_empty_servers
+    noticed.map do |stain|
+      [stain, @servers.find_id(stain.id)]
+    end
   end
 
-  def empty_stopping_stains
-    stains_cache.in_state(:shared_server_empty_stopping)
+  def no_longer_empty_server_ids
+    (noticed.ids - empty_shared_server_ids)
   end
 
-  def add_stain(id, state)
-    stain = EntityStateChange.new(id, state, Time.now)
-    stains_cache << stain
-    stain
+  def empty_shared_server_ids
+    (@servers.ids & bus.shared_server_ids).select do |id|
+      @servers.find_id(id).players.size == 0
+    end
   end
 
-  def remove_stain(id, state)
-    stains_cache.delete_if{|entry| entry.id == id && entry.state == state}
+  def noticed
+    @stains_cache.in_state(:shared_server_empty)
+  end
+
+  def notice id
+    @stains_cache << EntityStateChange.new(
+      id,
+      :shared_server_empty,
+      Time.now
+    )
+  end
+
+  def forget id
+    @stains_cache.delete(id)
   end
 end

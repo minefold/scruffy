@@ -72,7 +72,7 @@ class ServerUnderAllocated < Stain
   end
 
   def reallocating
-    @stains_cache.in_state(:server_under_allocated)
+    @stains_cache.in_state(:server_reallocating)
   end
 
   def notice id

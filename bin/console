@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+# encoding: UTF-8
+require 'bundler/setup'
+Bundler.require :default
+
+$:.unshift File.join File.dirname(__FILE__), '../lib'
+require 'scruffy'
+require 'pry'
+
+STDOUT.sync = true
+
+cluster = if Scruffy.env == 'development'
+  LocalCluster.new
+else
+  FogCluster.new
+end
+
+bus = RedisBus.new
+boxes = Boxes.new(cluster)
+pinkies = Pinkies.new(bus)
+servers = Servers.new(bus)
+scruffy = Scruffy.new(bus, boxes, pinkies, servers)
+
+binding.pry
