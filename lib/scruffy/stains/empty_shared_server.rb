@@ -31,7 +31,7 @@ class EmptySharedServer < Stain
 
     @pinkies.each do |pinky|
       (pinky.server_ids & shared_server_ids).each do |server_id|
-        if server_players(connected_players, server_id).size > 0
+        if (server_players(connected_players, server_id) || 0).size > 0
           remove_stain(server_id, :shared_server_empty)
           remove_stain(server_id, :shared_server_empty_stopping)
 
