@@ -97,7 +97,13 @@ class RedisBus
   end
 
   def connected_players
-    redis.hgetall("players:playing")
+    redis.keys("server:*:players").map do |key|
+      server_id = key.split(':')[1]
+      {
+        id: server_id,
+        players: redis.smembers(key)
+      }
+    end
   end
 
   # returns the number to_i or nil

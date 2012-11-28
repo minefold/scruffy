@@ -13,11 +13,7 @@ class EmptySharedServer < Stain
   EMPTY_DURATION = 1 * 60
 
   def server_players connected_players, server_id
-    connected_players.inject([]) do |players, (player_id, player_server_id)|
-      if player_id && (player_server_id == server_id)
-        players << player_id
-      end
-    end
+    connected_players.find{|server_players| server_players[:id] == server_id }
   end
 
   def clean
