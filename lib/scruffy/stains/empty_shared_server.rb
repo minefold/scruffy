@@ -22,10 +22,10 @@ class EmptySharedServer < Stain
           id: stain.id,
           action: 'shutting down'
           
-        if pinky = pinkies.find {|p| p.server_ids.include?(server_id) }
-          @pinkies.stop_server! pinky.id, server_id
-          @bus.del_shared_server(server_id)
-          forget server_id
+        if pinky = pinkies.find {|p| p.server_ids.include?(server.id) }
+          @pinkies.stop_server! pinky.id, server.id
+          @bus.del_shared_server(server.id)
+          forget server.id
         end
 
       else
