@@ -14,7 +14,7 @@ class EmptySharedServer < Stain
 
   def server_players connected_players, server_id
     connected_players.inject([]) do |p, (player_id, player_server_id)|
-      p << player_id if player_server_id == server_id
+      p << player_id if (player_id && (player_server_id == server_id))
     end
   end
 
