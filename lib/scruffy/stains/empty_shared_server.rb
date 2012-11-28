@@ -21,9 +21,12 @@ class EmptySharedServer < Stain
         log.warn event: 'shared_server_empty',
           id: stain.id,
           action: 'shutting down'
-        @pinkies.stop_server! pinky.id, server_id
-        @bus.del_shared_server(server_id)
-        forget server_id
+          
+        if pinky = pinkies.find {|p| p.server_ids.include?(server_id) }
+          @pinkies.stop_server! pinky.id, server_id
+          @bus.del_shared_server(server_id)
+          forget server_id
+        end
 
       else
         log.info event: 'shared_server_empty',
