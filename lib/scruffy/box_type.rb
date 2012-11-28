@@ -4,10 +4,10 @@ class BoxType
     :ecus,
     :ami
 
-    AMIS = {
-      '64bit' => 'ami-e3b0378a',
-        'HVM' => 'ami-a1b037c8'
-    }
+  AMIS = {
+    '64bit' => (ENV['AMI_64'] || 'ami-1176c278'),
+      'HVM' => (ENV['AMI_HVM'] || 'ami-cd52d3a4')
+  }
 
   def self.definitions
     [
