@@ -22,22 +22,30 @@ if ENV['LIBRATO_EMAIL'] and ENV['LIBRATO_API_TOKEN']
   $metrics = Librato::Metrics::Queue.new
 end
 
-loop do
-  # TODO trap TERM and wait until sweep is finished
-  cluster = if Scruffy.env == 'development'
-    LocalCluster.new
-  else
-    FogCluster.new
+running = true
+Signal.trap('TERM') do
+  running = false
+end
+
+while running
+  begin
+    cluster = if Scruffy.env == 'development'
+      LocalCluster.new
+    else
+      FogCluster.new
+    end
+
+    boxes = Boxes.new(cluster)
+    pinkies = Pinkies.new(RedisBus.new)
+    servers = Servers.new(RedisBus.new)
+    scruffy = Scruffy.new(RedisBus.new, boxes, pinkies, servers)
+
+    scruffy.sweep!
+    scruffy.report
+    scruffy.record_metrics
+  rescue => e
+    Bugsnag.notify(e)
   end
-
-  boxes = Boxes.new(cluster)
-  pinkies = Pinkies.new(RedisBus.new)
-  servers = Servers.new(RedisBus.new)
-  scruffy = Scruffy.new(RedisBus.new, boxes, pinkies, servers)
-
-  scruffy.sweep!
-  scruffy.report
-  scruffy.record_metrics
 
   sleep 5
 end
