@@ -1,3 +1,7 @@
+require 'turn/autorun'
+require 'minitest/mock'
+require 'scruffy'
+
 describe Pinkies do
   let(:bus) do
     bus = MiniTest::Mock.new
