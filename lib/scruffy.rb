@@ -207,6 +207,18 @@ class Scruffy
       slots_available: allocator.available_server_slots
   end
 
+  def record_metrics
+    if $metrics
+      $metrics.add 'players.count' => {
+        :type => :gauge,
+        :value => @servers.players.size,
+        :source => 'party-cloud'
+      }
+      
+      $metrics.submit
+    end
+  end
+
   def self.env
     ENV['SCRUFFY_ENV'] || 'development'
   end

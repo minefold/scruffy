@@ -16,6 +16,11 @@ Bugsnag.configure do |config|
   config.use_ssl = true
 end
 
+$metrics = nil
+if ENV['LIBRATO_EMAIL'] and ENV['LIBRATO_API_TOKEN']
+  Librato::Metrics.authenticate ENV['LIBRATO_EMAIL'], ENV['LIBRATO_API_TOKEN']
+  $metrics = Librato::Metrics::Queue.new
+end
 
 loop do
   # TODO trap TERM and wait until sweep is finished
@@ -32,6 +37,7 @@ loop do
 
   scruffy.sweep!
   scruffy.report
+  scruffy.record_metrics
 
   sleep 5
 end

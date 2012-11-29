@@ -12,6 +12,8 @@ gem "hiredis", "~> 0.4.5"
 gem 'colored'
 
 gem 'bugsnag'
+gem 'librato-metrics', require: 'librato/metrics'
+gem 'yajl-ruby'
 
 group :development do
   gem 'pry'
