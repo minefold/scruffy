@@ -21,4 +21,10 @@ pinkies = Pinkies.new(bus)
 servers = Servers.new(bus)
 scruffy = Scruffy.new(bus, boxes, pinkies, servers)
 
+boxes.update!
+pinkies.update!
+servers.update!
+
+allocator = Allocator.new(boxes, pinkies, servers)
+
 binding.pry

@@ -62,19 +62,12 @@ class Allocator
   end
 
   def idle_pinkies
-    # pinkies that are up, have no players, no worlds and are accepting new worlds
+    # pinkies that are up, have no servers and are accepting new worlds
     @pinkies.select do |pinky|
-      pinky.up?
-
-      # uptime_minutes = box.uptime
-      # TODO players
-      # player_count = box[:players].size
-       # world_count = instanceType.size
-
-      # player_count == 0 && world_count == 0 && !keepalive?(box)
+      pinky.up? and pinky.server_ids.size == 0
     end
   end
-  
+
   def allocated_ram_mb box_type
     (box_type.ram_mb * RAM_ALLOCATION)
   end
@@ -83,7 +76,7 @@ class Allocator
     [(allocated_ram_mb(box_type) / RAM_MB_PER_SLOT).floor,
      (box_type.ecus / ECUS_PER_SLOT).floor].min
   end
-  
+
   def players_per_slot
     PLAYERS_PER_SLOT
   end
@@ -91,7 +84,7 @@ class Allocator
   def new_box_type
     BoxType.find('cc2.8xlarge')
   end
-  
+
   def slots_required player_count
     (player_count / players_per_slot.to_f).ceil
   end

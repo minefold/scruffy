@@ -23,7 +23,8 @@ class ServerStartFrozen < Stain
           id: stain.id,
           action: 'cancelling'
 
-        @bus.del_server_state stain.id
+        # @bus.del_server_state stain.id
+        forget stain.id
 
       elsif stain.duration > 1 * 60
         log.info event: 'server_start_frozen',
@@ -38,7 +39,7 @@ class ServerStartFrozen < Stain
   end
 
   def new_frozen_servers
-    (empty_shared_server_ids - noticed.ids).map do |server_id|
+    (frozen_servers.ids - noticed.ids).map do |server_id|
       @servers.find_id(server_id)
     end
   end
@@ -53,20 +54,18 @@ class ServerStartFrozen < Stain
     (noticed.ids - empty_shared_server_ids)
   end
 
-  def empty_shared_server_ids
-    (@servers.ids & bus.shared_server_ids).select do |id|
-      @servers.find_id(id).players.size == 0
-    end
+  def frozen_servers
+    servers.in_state('starting')
   end
 
   def noticed
-    @stains_cache.in_state(:shared_server_empty)
+    @stains_cache.in_state(:server_start_frozen)
   end
 
   def notice id
     @stains_cache << EntityStateChange.new(
       id,
-      :shared_server_empty,
+      :server_start_frozen,
       Time.now
     )
   end
