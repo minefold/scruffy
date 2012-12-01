@@ -6,8 +6,10 @@ require 'json'
 
 class RedisBus
   def redis
-    uri = URI.parse(ENV['REDIS_URL'] || 'redis://localhost:6379/')
-    @redis ||= Redis.new(host: uri.host, port: uri.port, password: uri.password, driver: :hiredis)
+    @redis ||= begin
+      uri = URI.parse(ENV['REDIS_URL'] || 'redis://localhost:6379/')
+      Redis.new(host: uri.host, port: uri.port, password: uri.password, driver: :hiredis)
+    end
   end
 
   def pinky_heartbeats
@@ -45,7 +47,7 @@ class RedisBus
       ).symbolize_keys
     end
   end
-  
+
   def server_info
     redis.keys("server:*:state").map do |key|
       server_id = key.split(':')[1]
@@ -57,9 +59,9 @@ class RedisBus
       }
     end
   end
-  
-  def del_server_state id
-    redis.del("server:#{id}:state")
+
+  def del_server_info id
+    redis.del("server:#{id}:state", "server:#{id}:players", "server:#{id}:slots")
   end
 
   def store_cache(name, cache)

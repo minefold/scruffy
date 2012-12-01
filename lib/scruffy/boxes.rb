@@ -17,6 +17,10 @@ class Boxes < Array
       )
     end
   end
+  
+  def find_id(id)
+    self.find {|b| b.id == id }
+  end
 
   def start_new box_type
     @cluster.start_new box_type.id, 

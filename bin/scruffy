@@ -3,6 +3,8 @@
 require 'bundler/setup'
 Bundler.require :default
 
+require 'benchmark'
+
 $:.unshift File.join File.dirname(__FILE__), '../lib'
 require 'scruffy'
 
@@ -29,21 +31,29 @@ end
 
 while running
   begin
-    cluster = if Scruffy.env == 'development'
-      LocalCluster.new
-    else
-      FogCluster.new
+    log = Mutli::Logger.new
+    bm = Benchmark.measure do
+      cluster = if Scruffy.env == 'development'
+        LocalCluster.new
+      else
+        FogCluster.new
+      end
+
+      bus = RedisBus.new
+      boxes = Boxes.new(cluster)
+      pinkies = Pinkies.new(bus)
+      servers = Servers.new(bus)
+      scruffy = Scruffy.new(bus, boxes, pinkies, servers)
+
+      scruffy.sweep!
+      scruffy.report
+      scruffy.record_metrics
     end
 
-    boxes = Boxes.new(cluster)
-    pinkies = Pinkies.new(RedisBus.new)
-    servers = Servers.new(RedisBus.new)
-    scruffy = Scruffy.new(RedisBus.new, boxes, pinkies, servers)
-
-    scruffy.sweep!
-    scruffy.report
-    scruffy.record_metrics
+    log.info event: 'sweep', duration: bm.real
   rescue => e
+    log.error e, event: 'sweep'
+
     Bugsnag.notify(e)
   end
 

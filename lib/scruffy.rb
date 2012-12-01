@@ -169,6 +169,8 @@ class Scruffy
 
   def report
     log = Mutli::Logger.new(event: 'sweep')
+    allocator = Allocator.new(@boxes, @pinkies, @servers)
+
     @boxes.each do |box|
       log.info event: :box,
         id: box.id,
@@ -180,12 +182,19 @@ class Scruffy
     end
 
     @pinkies.each do |pinky|
+      slots_available = "???"
+      if box = @boxes.find_id(pinky.id)
+        slots_available = allocator.slot_count(box.type)
+      end
+
       log.info event: :pinky,
         id: pinky.id,
         state: pinky.state,
         ram_free: pinky.free_ram_mb,
         disk_free: pinky.free_disk_mb,
-        cpu_idle: pinky.idle_cpu
+        cpu_idle: pinky.idle_cpu,
+        slots_used: pinky.count_slots(@servers),
+        slots_available: slots_available
 
       # pinky.servers.each do |server|
       #   log.info event: 'server',
@@ -195,8 +204,6 @@ class Scruffy
       #     pinky: pinky.id
       # end
     end
-
-    allocator = Allocator.new(@boxes, @pinkies, @servers)
 
     log.info event: :summary,
       boxes: @boxes.count,
@@ -209,12 +216,17 @@ class Scruffy
 
   def record_metrics
     if $metrics
+      $metrics.add 'servers.count' => {
+        :type => :gauge,
+        :value => @servers.size,
+        :source => 'party-cloud'
+      }
       $metrics.add 'players.count' => {
         :type => :gauge,
         :value => @servers.players.size,
         :source => 'party-cloud'
       }
-      
+
       $metrics.submit
     end
   end
