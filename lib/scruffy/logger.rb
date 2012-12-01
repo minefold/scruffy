@@ -17,6 +17,7 @@ module Mutli
 
     def error e, data
       data["error"] = e
+      data["backtrace"] = e.backtrace
       out("error", data)
     end
 
