@@ -26,12 +26,10 @@ class EmptyServer < Stain
           forget server.id
         end
 
-      else
-       if stain.duration > 2 * 60
-          log.info event: 'server_empty',
-            id: stain.id,
-            duration: stain.duration
-        end
+      elsif stain.duration > 2 * 60
+        log.info event: 'server_empty',
+          id: stain.id,
+          duration: stain.duration
       end
     end
 

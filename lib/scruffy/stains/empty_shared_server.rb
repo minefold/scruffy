@@ -24,7 +24,6 @@ class EmptySharedServer < Stain
           
         if pinky = pinkies.find {|p| p.server_ids.include?(server.id) }
           @pinkies.stop_server! pinky.id, server.id
-          @bus.del_shared_server(server.id)
           forget server.id
         end
 

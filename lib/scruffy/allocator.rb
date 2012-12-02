@@ -31,11 +31,7 @@ class Allocator
   end
 
   def used_server_slots
-    @pinkies.inject(0) do |sum, pinky|
-      box = @boxes.by_id(pinky.id)
-
-      sum + pinky.server_ids.size
-    end
+    @servers.slots
   end
 
   def available_server_slots

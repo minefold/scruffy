@@ -66,5 +66,6 @@ class Pinkies < Array
 
   def stop_server! pinky_id, server_id
     @bus.queue_pinky_job pinky_id, 'stop', serverId: server_id
+    @bus.del_shared_server(server_id)
   end
 end
