@@ -28,8 +28,8 @@ class ServerStopFrozen < Stain
       log.warn event: stain_type, server_id: stain.id, action: 'stopping'
 
       if pinky = @pinkies.find_by_server_id(stain.id)
-        # @servers.set_server_state(stain.id, 'up')
-        # @pinkies.stop_server! pinky.id, stain.id
+        @servers.set_server_state(stain.id, 'up')
+        @pinkies.stop_server! pinky.id, stain.id
       end
     end
   end

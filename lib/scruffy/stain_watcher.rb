@@ -7,7 +7,7 @@ module StainWatcher
     attr_reader :stain_type
 
     def stain(type)
-      @type = type
+      @stain_type = type
     end
   end
 
@@ -44,11 +44,7 @@ module StainWatcher
   end
 
   def notice(id)
-    stain = EntityStateChange.new(
-      id,
-      :missing_server_state,
-      Time.now
-    )
+    stain = EntityStateChange.new(id, stain_type, Time.now)
     @stains_cache << stain
     stain
   end
