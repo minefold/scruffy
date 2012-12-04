@@ -37,10 +37,14 @@ class Pinkies < Array
     @states.map{|ps| ps[:id]}
   end
 
+  def find_by_server_id(server_id)
+    self.find {|p| p.server_ids.include?(server_id) }
+  end
+
   def server_ids
     self.inject([]) {|ids, pinky| ids + pinky.server_ids }.uniq
   end
-  
+
   def servers
     self.map(&:servers).flatten
   end
@@ -67,5 +71,9 @@ class Pinkies < Array
   def stop_server! pinky_id, server_id
     @bus.queue_pinky_job pinky_id, 'stop', serverId: server_id
     @bus.del_shared_server(server_id)
+  end
+
+  def list_server! pinky_id, server_id
+    @bus.queue_pinky_job pinky_id, 'list', serverId: server_id
   end
 end

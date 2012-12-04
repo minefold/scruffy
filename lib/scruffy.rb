@@ -11,6 +11,7 @@ require "scruffy/pinkies"
 require "scruffy/pinky"
 require "scruffy/server"
 require "scruffy/entity_state_cache"
+require "scruffy/stain_watcher"
 require "scruffy/stains"
 require "scruffy/allocator"
 

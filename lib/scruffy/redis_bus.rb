@@ -61,6 +61,10 @@ class RedisBus
     end
   end
 
+  def set_server_state id, state
+    redis.set("server:#{id}:state", state)
+  end
+
   def del_server_info id
     redis.del("server:#{id}:state", "server:#{id}:players", "server:#{id}:slots")
   end

@@ -13,60 +13,33 @@
 #    players affected
 
 class MissingServerState < Stain
-  def clean
-    new_stain_ids.each do |stain_id|
-      notice stain_id
-    end
+  include StainWatcher
 
-    no_longer_stains.each do |stain_id|
-      log.warn event: 'server_state_no_longer_missing', id: stain_id
-      forget stain_id
-    end
+  stain :missing_server_state
 
-    current_stains.each do |stain|
-      if stain.duration > 1 * 60
-        log.warn event: 'missing_server_state',
-          id: stain.id,
-          action: 'stopping'
-
-        if pinky = @pinkies.find {|p| p.server_ids.include?(stain.id) }
-          # @pinkies.stop_server! pinky.id, stain.id
-          # forget stain.id
-        end
-
-      else
-        log.info event: 'missing_server_state',
-          id: stain.id,
-          duration: stain.duration
-      end
-    end
-  end
-
-  def affected_server_ids
+  def affected_ids
+    # pinky server info without server info
     @pinkies.server_ids - @servers.ids
   end
 
-  def new_stain_ids
-    affected_server_ids - current_stains.ids
+  def stain_gone(stain_id)
+    log.warn event: 'server_state_no_longer_missing', id: stain_id
   end
 
-  def no_longer_stains
-    current_stains.ids - affected_server_ids
-  end
+  def check_stain(stain)
+    if stain.duration > 1 * 60
+      log.warn event: stain_type,
+        id: stain.id,
+        action: 'stopping'
 
-  def current_stains
-    @stains_cache.in_state(:missing_server_state)
-  end
+      if pinky = @pinkies.find {|p| p.server_ids.include?(stain.id) }
+        @pinkies.stop_server! pinky.id, stain.id
+      end
 
-  def notice id
-    @stains_cache << EntityStateChange.new(
-      id,
-      :missing_server_state,
-      Time.now
-    )
-  end
-
-  def forget id
-    @stains_cache.delete(id)
+    else
+      log.info event: stain_type,
+        id: stain.id,
+        duration: stain.duration
+    end
   end
 end
