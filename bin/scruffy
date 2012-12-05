@@ -29,6 +29,8 @@ Signal.trap('TERM') do
   running = false
 end
 
+last_server_listing = (Time.now - 10 * 60)
+
 while running
   begin
     log = Mutli::Logger.new
@@ -46,6 +48,12 @@ while running
       scruffy = Scruffy.new(bus, boxes, pinkies, servers)
 
       scruffy.sweep!
+      if (Time.now - last_server_listing) > 10 * 60
+        last_server_listing = Time.now
+        log.info event: 'list_servers'
+        scruffy.list_servers!
+      end
+
       scruffy.report
       scruffy.record_metrics
     end

@@ -43,6 +43,14 @@ class Scruffy
     update_caches
   end
 
+  def list_servers!
+    @servers.each do |server|
+      if pinky = @pinkies.find_by_server_id(server.id)
+        @pinkies.list_server! pinky.id, server.id
+      end
+    end
+  end
+
   def update_states
     find_gone_boxes
     find_new_boxes
