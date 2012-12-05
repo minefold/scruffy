@@ -1,7 +1,7 @@
 module StainWatcher
   # hooks
   def stain_gone(stain_id); end
-  def stain_noticed(stain); end
+  def stain_noticed(stain_id); end
 
   module ClassMethods
     attr_reader :stain_type

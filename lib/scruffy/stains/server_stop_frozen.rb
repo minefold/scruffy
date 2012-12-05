@@ -22,7 +22,8 @@ class ServerStopFrozen < Stain
 
   def check_stain(stain)
     if stain.duration > 1 * 60
-      log.warn event: stain_type, server_id: stain.id
+      log.warn event: stain_type, server_id: stain.id, 
+        duration: stain.duration
 
     elsif stain.duration > 5 * 60
       log.warn event: stain_type, server_id: stain.id, action: 'stopping'

@@ -31,4 +31,8 @@ class Servers < Array
   def find_id(id)
     self.find{|s| s.id == id }
   end
+  
+  def restart!(id, message)
+    @bus.restart_server(id, message)
+  end
 end
