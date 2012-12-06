@@ -50,13 +50,18 @@ class RedisBus
   end
 
   def server_info
+    # HACK until I deploy new pinky
+    prism_players = redis.smembers('prism:i-e995cf96:players')
+
     redis.keys("server:*:state").map do |key|
       server_id = key.split(':')[1]
       {
         id: server_id,
         state: redis.get("server:#{server_id}:state"),
         slots: as_int(redis.get("server:#{server_id}:slots")),
-        players: redis.smembers("server:#{server_id}:players"),
+        # hack until I deploy new pinky
+        # players: redis.smembers("server:#{server_id}:players"),
+        players: (redis.smembers("prism:i-e995cf96:players") & prism_players),
       }
     end
   end
@@ -66,7 +71,11 @@ class RedisBus
   end
 
   def del_server_info id
-    redis.del("server:#{id}:state", "server:#{id}:players", "server:#{id}:slots")
+    redis.del(
+      "server:#{id}:state",
+      "server:#{id}:players",
+      "server:#{id}:slots"
+    )
   end
 
   def store_cache(name, cache)
@@ -97,7 +106,7 @@ class RedisBus
       name: name
     }.merge(args)))
   end
-  
+
   def restart_server server_id, message
     redis.lpush "servers:requests:restart", JSON.dump(
       server_id: server_id,
@@ -112,16 +121,6 @@ class RedisBus
 
   def del_shared_server server_id
     redis.srem("servers:shared", server_id)
-  end
-
-  def connected_players
-    redis.keys("server:*:players").map do |key|
-      server_id = key.split(':')[1]
-      {
-        id: server_id,
-        players: redis.smembers(key)
-      }
-    end
   end
 
   # returns the number to_i or nil
