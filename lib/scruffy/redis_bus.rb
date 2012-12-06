@@ -51,7 +51,7 @@ class RedisBus
 
   def server_info
     # HACK until I deploy new pinky
-    prism_players = redis.smembers('prism:i-e995cf96:players')
+    # prism_players = redis.smembers('prism:i-e995cf96:players')
 
     redis.keys("server:*:state").map do |key|
       server_id = key.split(':')[1]
@@ -59,9 +59,10 @@ class RedisBus
         id: server_id,
         state: redis.get("server:#{server_id}:state"),
         slots: as_int(redis.get("server:#{server_id}:slots")),
+        players: redis.smembers("server:#{server_id}:players"),
+
         # hack until I deploy new pinky
-        # players: redis.smembers("server:#{server_id}:players"),
-        players: (redis.smembers("prism:i-e995cf96:players") & prism_players),
+        # players: (redis.smembers("server:#{server_id}:players") & prism_players),
       }
     end
   end
