@@ -81,7 +81,7 @@ class RedisBus
   end
 
   def del_pinky_server pinky_id, server_id
-    redis.del("pinky:#{id}:servers:#{server_id}")
+    redis.del("pinky:#{pinky_id}:servers:#{server_id}")
   end
 
   def store_cache(name, cache)
