@@ -27,7 +27,7 @@ class ServerStartFrozen < Stain
           id: stain.id,
           action: 'cancelling'
 
-        @bus.del_server_info stain.id
+        @bus.del_server_keys stain.id
         forget stain.id
 
       elsif stain.duration > 1 * 60

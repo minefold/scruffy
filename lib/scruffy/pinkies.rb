@@ -9,7 +9,7 @@ class Pinkies < Array
     @pinky_servers = @bus.pinky_servers
     @heartbeats = @bus.pinky_heartbeats
 
-    (heartbeat_ids | pinky_state_ids).each do |pinky_id|
+    (heartbeat_ids | pinky_state_ids | pinky_server_pinky_ids).each do |pinky_id|
       hb = @heartbeats.find{|hb| hb[:id] == pinky_id}
 
       server_ids = @pinky_servers.
@@ -35,6 +35,10 @@ class Pinkies < Array
 
   def pinky_state_ids
     @states.map{|ps| ps[:id]}
+  end
+
+  def pinky_server_pinky_ids
+    @pinky_servers.group_by{|ps| ps[:pinky_id]}.keys
   end
 
   def find_by_server_id(server_id)

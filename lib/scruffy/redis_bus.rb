@@ -71,12 +71,17 @@ class RedisBus
     redis.set("server:#{id}:state", state)
   end
 
-  def del_server_info id
+  def del_server_keys id
     redis.del(
       "server:#{id}:state",
       "server:#{id}:players",
-      "server:#{id}:slots"
+      "server:#{id}:slots",
+      "server:#{id}:restart"
     )
+  end
+
+  def del_pinky_server pinky_id, server_id
+    redis.del("pinky:#{id}:servers:#{server_id}")
   end
 
   def store_cache(name, cache)
