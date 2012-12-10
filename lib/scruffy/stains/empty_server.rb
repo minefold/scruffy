@@ -17,11 +17,12 @@ class EmptyServer < Stain
 
     currently_empty_servers.each do |stain, server|
       if stain.duration > 10 * 60
-        log.warn event: 'server_empty',
-          id: stain.id,
-          action: 'shutting down'
-          
         if pinky = pinkies.find {|p| p.server_ids.include?(server.id) }
+          log.warn event: 'server_empty',
+            pinky: pinky.id,
+            server: stain.id,
+            action: 'shutting down'
+
           @pinkies.stop_server! pinky.id, server.id
           forget server.id
         end

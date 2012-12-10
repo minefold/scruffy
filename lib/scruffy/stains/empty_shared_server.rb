@@ -30,11 +30,12 @@ class EmptySharedServer < Stain
 
   def check_stain(stain)
     if stain.duration > 1 * 60
-      log.warn event: 'shared_server_empty',
-        server_id: stain.id,
-        action: 'shutting down'
-
       if pinky = pinkies.find {|p| p.server_ids.include?(stain.id) }
+        log.warn event: 'shared_server_empty',
+          server: stain.id,
+          pinky: pinky.id,
+          action: 'shutting down'
+
         @pinkies.stop_server! pinky.id, stain.id
       end
 

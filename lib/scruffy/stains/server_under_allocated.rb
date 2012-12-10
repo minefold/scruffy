@@ -40,6 +40,7 @@ class ServerUnderAllocated < Stain
         required: required
 
       @servers.reallocate!(stain.id, required, "Optimizing server. Please reconnect in 30 seconds")
+      forget stain.id
 
     else
       log.info event: 'server_under_allocated',
