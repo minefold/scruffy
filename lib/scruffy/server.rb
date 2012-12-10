@@ -19,20 +19,25 @@ class Servers < Array
       )
     end
   end
-  
+
   def players
     self.inject([]) {|a, s| a + s.players }.uniq
   end
-  
+
   def slots
     self.inject(0) {|count, s| count + (s.slots || 1) }
   end
-  
+
   def find_id(id)
     self.find{|s| s.id == id }
   end
-  
-  def restart!(id, message)
-    @bus.restart_server(id, message)
+
+  def reallocate!(id, slots, message)
+    @bus.brain_request(
+      'servers:reallocate_request',
+      server_id: id,
+      slots: slots,
+      message: message
+    )
   end
 end

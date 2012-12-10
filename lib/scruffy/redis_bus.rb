@@ -113,11 +113,8 @@ class RedisBus
     }.merge(args)))
   end
 
-  def restart_server server_id, message
-    redis.lpush "servers:requests:restart", JSON.dump(
-      server_id: server_id,
-      message: message
-    )
+  def brain_request type, args = {}
+    redis.lpush type, JSON.dump(args)
   end
 
   # TODO this stuff belongs in Minefold not Party Cloud

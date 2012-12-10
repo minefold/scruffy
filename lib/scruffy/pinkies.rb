@@ -77,6 +77,14 @@ class Pinkies < Array
     @bus.del_shared_server(server_id)
   end
 
+  def reallocate_server! pinky_id, server_id, slots
+    @bus.brain_request 'servers:reallocate_request', JSON.dump(
+      server_id: server_id,
+      slots: slots
+    )
+
+  end
+
   def list_server! pinky_id, server_id
     @bus.queue_pinky_job pinky_id, 'list', serverId: server_id
   end

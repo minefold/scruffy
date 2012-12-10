@@ -82,6 +82,11 @@ class Allocator
   end
 
   def slots_required player_count
-    (player_count / players_per_slot.to_f).ceil
+    player_count = [player_count, 1].max
+
+    slots = (player_count / players_per_slot.to_f).ceil
+
+    # we want slots to be exponential. 1, 2, 4, etc up to 16 slots
+    [2 ** Math.log(slots, 2).ceil, 16].min
   end
 end
