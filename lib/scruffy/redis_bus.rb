@@ -16,7 +16,12 @@ class RedisBus
     redis.keys("pinky:*:heartbeat").map do |key|
       id = key.split(':')[1]
       json = redis.get(key)
-      JSON.load(json).merge(id: id).symbolize_keys
+      begin
+        JSON.load(json).merge(id: id).symbolize_keys
+      rescue => e
+        puts "JSON error #{e}\n#{e.backtrace}"
+        {}
+      end
     end
   end
 
