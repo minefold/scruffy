@@ -18,14 +18,12 @@ class ServerOverAllocated < Stain
     @servers.select do |server|
       lower_bound = ((server.slots || 1) - 1) * allocator.players_per_slot
 
-      puts "#{server.players.size} < #{lower_bound}"
-
       server.players.size < lower_bound
     end.ids
   end
 
   def stain_gone(stain_id)
-    log.info event: 'server_allocated_ok', id: server_id
+    log.info event: 'server_allocated_ok', id: stain_id
   end
 
   def check_stain(stain)

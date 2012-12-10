@@ -191,9 +191,9 @@ class Scruffy
     end
 
     @pinkies.each do |pinky|
-      slots_available = "???"
+      slots_total = "???"
       if box = @boxes.find_id(pinky.id)
-        slots_available = allocator.slot_count(box.type)
+        slots_total = allocator.slot_count(box.type)
       end
 
       log.info event: :pinky,
@@ -203,7 +203,7 @@ class Scruffy
         disk_free: pinky.free_disk_mb,
         cpu_idle: pinky.idle_cpu,
         slots_used: pinky.count_slots(@servers),
-        slots_available: slots_available
+        slots_total: slots_total
 
       # pinky.servers.each do |server|
       #   log.info event: 'server',

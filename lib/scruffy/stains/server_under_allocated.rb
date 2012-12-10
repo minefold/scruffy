@@ -24,7 +24,7 @@ class ServerUnderAllocated < Stain
   end
 
   def stain_gone(stain_id)
-    log.info event: 'server_allocated_ok', id: server_id
+    log.info event: 'server_allocated_ok', id: stain_id
   end
 
   def check_stain(stain)
