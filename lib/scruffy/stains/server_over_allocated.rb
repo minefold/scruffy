@@ -16,10 +16,11 @@ class ServerOverAllocated < Stain
 
   def affected_ids
     @servers.select do |server|
-      player_slots_available =
-        (server.slots || 1) * allocator.players_per_slot
+      lower_bound = ((server.slots || 1) - 1) * allocator.players_per_slot
 
-      server.players.size < player_slots_available
+      puts "#{server.players.size} < #{lower_bound}"
+
+      server.players.size < lower_bound
     end.ids
   end
 
@@ -39,7 +40,7 @@ class ServerOverAllocated < Stain
         slots: server.slots,
         required: required
 
-      @servers.reallocate!(stain.id, required, "Optimizing server. Please reconnect in 30 seconds")
+      # @servers.reallocate!(stain.id, required, "Optimizing server. Please reconnect in 30 seconds")
 
     else
       log.info event: 'server_over_allocated',
