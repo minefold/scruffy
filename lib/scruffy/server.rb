@@ -40,4 +40,8 @@ class Servers < Array
       message: message
     )
   end
+  
+  def del_server_info(id)
+    @bus.del_server_info(id)
+  end
 end
