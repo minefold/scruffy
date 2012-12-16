@@ -14,7 +14,7 @@ class ServerHeartbeatMissing < Stain
   stain :server_heartbeat_missing
 
   def affected_ids
-    @servers.in_state('stopping').ids
+    @servers.reject(&:heartbeat).ids
   end
 
   def check_stain(stain)
