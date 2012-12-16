@@ -62,6 +62,7 @@ class RedisBus
         state: redis.get("server:#{server_id}:state"),
         slots: as_int(redis.get("server:#{server_id}:slots")),
         players: redis.smembers("server:#{server_id}:players"),
+        heartbeat: redis.get("server:#{server_id}:heartbeat"),
       }
     end
   end

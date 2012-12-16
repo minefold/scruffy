@@ -39,7 +39,7 @@ class FogCluster
 
     instance.id
   end
-  
+
   def terminate id
     instance = compute_cloud.servers.get(id)
     instance.destroy
@@ -76,7 +76,7 @@ class FogCluster
   def log_server
     'logs.partycloud.com'
   end
-  
+
   def configurator_app
     ENV['CONFIGURATOR'] || 'party-cloud-staging'
   end
@@ -132,6 +132,8 @@ cat<<EOF > /tmp/attributes.json
 EOF
 
 chef-solo -c /home/ubuntu/chef/ec2/solo.rb -j /tmp/attributes.json
+
+gem install bundler --no-ri --no-rdoc
   EOS
   end
 end

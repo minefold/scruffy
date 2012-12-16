@@ -1,4 +1,4 @@
-class Server < Struct.new(:id, :state, :slots, :players)
+class Server < Struct.new(:id, :state, :slots, :players, :heartbeat)
 end
 
 class Servers < Array
@@ -15,7 +15,8 @@ class Servers < Array
         s[:id],
         s[:state],
         s[:slots],
-        s[:players]
+        s[:players],
+        s[:heartbeat]
       )
     end
   end
@@ -40,7 +41,7 @@ class Servers < Array
       message: message
     )
   end
-  
+
   def del_server_info(id)
     @bus.del_server_info(id)
   end
