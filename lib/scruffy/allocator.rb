@@ -19,10 +19,10 @@ class Allocator
       (available_server_slots <= SERVER_BUFFER)
   end
 
-  def total_server_slots
+  def available_pinky_slots
     @pinkies.inject(0) do |sum, pinky|
       box = @boxes.by_id(pinky.id)
-      if box.nil? or not box.up?
+      if box.nil? or not box.up? or not pinky.up?
         sum
       else
         sum + slot_count(box.type)
@@ -35,11 +35,11 @@ class Allocator
   end
 
   def available_server_slots
-    total_server_slots - used_server_slots
+    available_pinky_slots - used_server_slots
   end
 
   def excess_pinkies
-    excess_slots = total_server_slots - SERVER_BUFFER
+    excess_slots = available_pinky_slots - SERVER_BUFFER
     idle_pinkies_close_to_hour_end.select do |pinky|
       box = @boxes.by_id(pinky.id)
 
@@ -60,7 +60,7 @@ class Allocator
   def idle_pinkies
     # pinkies that are up, have no servers and are accepting new worlds
     @pinkies.select do |pinky|
-      pinky.up? and pinky.server_ids.size == 0
+      (pinky.up? || pinky.stopping? || pinky.down?) and pinky.server_ids.size == 0
     end
   end
 

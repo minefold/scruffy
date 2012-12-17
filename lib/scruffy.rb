@@ -131,7 +131,7 @@ class Scruffy
 
       log.warn event: 'low_capacity',
         used: allocator.used_server_slots,
-        available: allocator.total_server_slots,
+        available: allocator.available_pinky_slots,
         action: 'starting new box',
         type: box_type.id
 
@@ -149,7 +149,7 @@ class Scruffy
       log.warn event: 'excess_capacity',
         id: pinky.id,
         used: allocator.used_server_slots,
-        available: allocator.total_server_slots,
+        available: allocator.available_pinky_slots,
         action: 'terminating box'
 
       @pinkies.pinky_stopping! pinky.id
@@ -218,7 +218,7 @@ class Scruffy
       boxes: @boxes.count,
       pinkies: @pinkies.count,
       players: @servers.players.size,
-      slots_total: allocator.total_server_slots,
+      slots_total: allocator.available_pinky_slots,
       slots_used: allocator.used_server_slots,
       slots_available: allocator.available_server_slots
   end
