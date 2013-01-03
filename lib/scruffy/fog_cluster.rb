@@ -70,7 +70,7 @@ class FogCluster
   end
 
   def pinky_branch
-    'master'
+    ENV['PINKY_BRANCH'] || 'master'
   end
 
   def log_server
@@ -117,20 +117,36 @@ echo 3 > /proc/sys/vm/drop_caches
 
 cat<<EOF > /tmp/attributes.json
 {
-  "pinky": { "branch": "#{pinky_branch}"},
-  "relp": { "server": "#{log_server}" },
   "configurator": {
     "app": "#{configurator_app}"
   },
   "run_list":[
+    "recipe[configurator]"
+  ]
+}
+EOF
+chef-solo -c /home/ubuntu/chef/ec2/solo.rb -j /tmp/attributes.json
+source /home/fold/.configurator
+
+curl http://party-cloud-production.s3.amazonaws.com/pc-tools/install.sh | sh
+
+cd /home/ubuntu/chef/cookbooks
+rm -rf *
+restore-dir http://party-cloud-production.s3.amazonaws.com/cookbooks/#{Scruffy.env}.tar.lzo
+
+cat<<EOF > /tmp/attributes.json
+{
+  "pinky": { "branch": "#{pinky_branch}"},
+  "relp": { "server": "#{log_server}" },
+  "run_list":[
     "recipe[rsyslog]",
     "recipe[relp::client]",
-    "recipe[configurator]",
+    "recipe[party-cloud::raid]",
+    "recipe[party-cloud::bootstrap]",
     "recipe[pinky::deploy]"
   ]
 }
 EOF
-
 chef-solo -c /home/ubuntu/chef/ec2/solo.rb -j /tmp/attributes.json
 
 gem install bundler --no-ri --no-rdoc

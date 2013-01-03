@@ -78,7 +78,7 @@ class Allocator
   end
 
   def new_box_type
-    BoxType.find('cc2.8xlarge')
+    BoxType.find(ENV['INSTANCE_TYPE'] || 'cc2.8xlarge')
   end
 
   def slots_required player_count

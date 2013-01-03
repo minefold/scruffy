@@ -28,7 +28,11 @@ class PrismPlayerMissing < Stain
     else
       server = @servers.find{|s| s.players.include?(stain.id) }
       if server
-        log.warn event: stain_type, player: stain.id, server: server.id, action: 'removing'
+        log.warn event: stain_type,
+          player: stain.id,
+          server: server.id,
+          action: 'removing',
+          duration: stain.duration
         # @bus.redis.srem("server:#{server.id}:players", stain.id)
       else
         log.warn event: stain_type, player: stain.id, server: 'unknown'

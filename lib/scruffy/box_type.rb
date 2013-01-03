@@ -6,7 +6,7 @@ class BoxType
 
   AMIS = {
     '64bit' => (ENV['AMI_64'] || 'ami-1176c278'),
-      'HVM' => (ENV['AMI_HVM'] || 'ami-cd52d3a4')
+      'HVM' => (ENV['AMI_HVM'] || 'ami-ffe26e96')
   }
 
   def self.definitions
