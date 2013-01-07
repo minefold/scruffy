@@ -30,13 +30,15 @@ class ServerUnderAllocated < Stain
   def check_stain(stain)
     server = @servers.find_id(stain.id)
     required = allocator.slots_required(server.players.size)
-    slot_difference = Math.log(required, 2) - Math.log(server.slots, 2)
+    server_slots = (server.slots || 1)
+    
+    slot_difference = Math.log(required, 2) - Math.log(server_slots, 2)
 
     if stain.duration > 10 * 60 or slot_difference > 1
       log.warn event: 'server_under_allocated',
         id: stain.id,
         action: 'reallocating',
-        slots: server.slots,
+        slots: server_slots,
         required: required
 
       @servers.reallocate!(stain.id, required, "Optimizing server. Please reconnect in 30 seconds")
@@ -46,7 +48,7 @@ class ServerUnderAllocated < Stain
       log.info event: 'server_under_allocated',
         id: stain.id,
         duration: stain.duration,
-        slots: server.slots,
+        slots: server_slots,
         required: required
     end
   end
