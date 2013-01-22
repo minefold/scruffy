@@ -16,8 +16,7 @@ class PrismPlayerMissing < Stain
 
   def affected_ids
     @affected_ids ||= begin
-      prism_players = @bus.redis.smembers('prism:i-e995cf96:players')
-      @servers.players - prism_players
+      @servers.players - @bus.prism_players
     end
   end
 

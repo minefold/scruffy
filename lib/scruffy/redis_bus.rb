@@ -132,6 +132,17 @@ class RedisBus
     redis.srem("servers:shared", server_id)
   end
 
+  def prism_players
+    players = Set.new
+    keys = redis.keys('prism:*:players')
+    keys.each do |key|
+      redis.smembers(key).each do |player|
+        players.add(player)
+      end
+    end
+    players.to_a
+  end
+
   # returns the number to_i or nil
   def as_int(number)
     number and number.to_i
