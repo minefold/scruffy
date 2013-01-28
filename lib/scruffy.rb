@@ -236,7 +236,18 @@ class Scruffy
         :source => 'party-cloud'
       }
 
-      $metrics.submit
+      retries = 0
+      begin
+        $metrics.submit
+      rescue
+        sleep 1
+        retries += 1
+        if retries < 3
+          retry
+        else
+          raise
+        end
+      end
     end
   end
 
