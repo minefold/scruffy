@@ -1,4 +1,4 @@
-class Server < Struct.new(:id, :state, :slots, :players, :heartbeat)
+class Server < Struct.new(:id, :funpack, :state, :slots, :players, :heartbeat)
 end
 
 class Servers < Array
@@ -13,6 +13,7 @@ class Servers < Array
     @server_info.each do |s|
       self << Server.new(
         s[:id],
+        s[:funpack],
         s[:state],
         s[:slots],
         s[:players],
@@ -43,6 +44,6 @@ class Servers < Array
   end
 
   def del_server_info(id)
-    @bus.del_server_info(id)
+    @bus.del_server_keys(id)
   end
 end

@@ -61,27 +61,23 @@ class RedisBus
         id: server_id,
         state: redis.get("server:#{server_id}:state"),
         slots: as_int(redis.get("server:#{server_id}:slots")),
+        funpack: redis.get("server:#{server_id}:funpack"),
         players: redis.smembers("server:#{server_id}:players"),
         heartbeat: redis.get("server:#{server_id}:heartbeat"),
       }
     end
   end
 
-  def del_server_info(server_id)
-    redis.del("server:#{server_id}:state")
-    redis.del("server:#{server_id}:players")
-    redis.del("server:#{server_id}:slots")
-  end
-
   def set_server_state id, state
     redis.set("server:#{id}:state", state)
   end
 
-  def del_server_keys id
+  def del_server_keys(id)
     redis.del(
       "server:#{id}:state",
       "server:#{id}:players",
       "server:#{id}:slots",
+      "server:#{id}:funpack",
       "server:#{id}:restart"
     )
   end
