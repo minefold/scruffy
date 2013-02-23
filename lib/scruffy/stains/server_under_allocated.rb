@@ -13,13 +13,16 @@ class ServerUnderAllocated < Stain
   include StainWatcher
 
   stain :server_under_allocated
+  
+  # TODO remove hardcoded reference to TF2
+  TF2 = '50bec3967aae5797c0000004'
 
   def affected_ids
     @servers.select do |server|
       player_slots_available =
         (server.slots || 1) * allocator.players_per_slot
 
-      server.players.size > player_slots_available
+      (server.funpack != TF2) && (server.players.size > player_slots_available)
     end.ids
   end
 
