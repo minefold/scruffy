@@ -84,6 +84,8 @@ class FogCluster
   def cloud_init_script
     <<-EOS
 #!/bin/bash
+set -x
+exec > /tmp/cloud-init.log 2>&1
 
 DOMAIN=minefold.com
 HOSTNAME=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
@@ -130,6 +132,7 @@ source /home/fold/.configurator
 
 curl http://party-cloud-production.s3.amazonaws.com/pc-tools/install.sh | sh
 
+mkdir -p /home/ubuntu/chef/cookbooks
 cd /home/ubuntu/chef/cookbooks
 rm -rf *
 restore-dir http://party-cloud-production.s3.amazonaws.com/cookbooks/#{Scruffy.env}.tar.lzo
