@@ -20,6 +20,6 @@ class Array
   end
 
   def in_state state
-    self.select{|b| b.state == state }
+    self.select{|b| b.state.to_s == state.to_s }
   end
 end
