@@ -2,7 +2,8 @@
 #   unknown
 
 # smell:
-#   server state key without a pinky server key
+#   up server state without a pinky server state
+#   pinky server state is the ip and port of a running server on pinky
 #   eg. /server/state/1234 + pinky/1/heartbeat without a /pinky/1/1234
 
 # cleanup:
@@ -17,7 +18,7 @@ class MissingPinkyServer < Stain
 
   def affected_ids
     # server state without pinky server info
-    @servers.ids - @pinkies.server_ids
+    @servers.up.ids - @pinkies.server_ids
   end
 
   def stain_gone(stain_id)

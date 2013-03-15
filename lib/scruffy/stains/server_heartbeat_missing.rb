@@ -2,7 +2,7 @@
 #   funpack stalled
 
 # smell:
-#   server with missing heartbeat
+#   up servers with missing heartbeats
 
 # cleanup:
 
@@ -14,7 +14,7 @@ class ServerHeartbeatMissing < Stain
   stain :server_heartbeat_missing
 
   def affected_ids
-    @servers.reject(&:heartbeat).ids
+    @servers.up.reject(&:heartbeat).ids
   end
 
   def check_stain(stain)

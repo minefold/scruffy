@@ -2,7 +2,7 @@
 #   unknown
 
 # smell:
-#   there's a player in the servers thats not in prism
+#   minecraft player in an up server that's not in prism
 
 # cleanup:
 #   remove player from server
@@ -25,7 +25,7 @@ class PrismPlayerMissing < Stain
       log.warn event: stain_type, player: stain.id,
         duration: stain.duration
     else
-      server = @servers.find{|s| s.players.include?(stain.id) }
+      server = @servers.up.find{|s| s.players.include?(stain.id) }
       if server
         log.warn event: stain_type,
           player: stain.id,
