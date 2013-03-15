@@ -27,7 +27,7 @@ class ServerStartFrozen < Stain
         action: 'killing',
         duration: stain.duration
 
-    if stain.duration > 1 * 60
+    elsif stain.duration > 1 * 60
       log.info event: stain_type,
         server: stain.id,
         duration: stain.duration
