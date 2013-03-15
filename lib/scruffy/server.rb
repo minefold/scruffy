@@ -21,7 +21,7 @@ class Servers < Array
       )
     end
   end
-
+  
   def players
     self.inject([]) {|a, s| a + s.players }.uniq
   end

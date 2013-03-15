@@ -16,7 +16,7 @@ class PrismPlayerMissing < Stain
 
   def affected_ids
     @affected_ids ||= begin
-      @servers.players - @bus.prism_players
+      @servers.up.map(&:players).flatten.uniq - @bus.prism_players
     end
   end
 
