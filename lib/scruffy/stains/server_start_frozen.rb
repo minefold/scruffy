@@ -20,12 +20,13 @@ class ServerStartFrozen < Stain
   end
 
   def check_stain(stain)
-    if stain.duration > 5 * 60
-      server = @servers.up.find{|s| s.players.include?(stain.id) }
+    if stain.duration > 10 * 60
       log.warn event: 'server_start_frozen',
         server: stain.id,
         action: 'killing',
         duration: stain.duration
+        
+      @bus.del_server_keys(stain.id)
 
     elsif stain.duration > 1 * 60
       log.info event: stain_type,
