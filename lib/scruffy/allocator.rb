@@ -30,12 +30,20 @@ class Allocator
     end
   end
 
-  def used_server_slots
-    @servers.slots
-  end
-
   def available_server_slots
     available_pinky_slots - used_server_slots
+  end
+  
+  def used_server_slots
+    # only count up pinkies
+    @pinkies.inject(0) do |sum, pinky|
+      box = @boxes.by_id(pinky.id)
+      if box.nil? or not box.up? or not pinky.up?
+        sum
+      else
+        sum + pinky.count_slots(@servers)
+      end
+    end
   end
 
   def excess_pinkies
