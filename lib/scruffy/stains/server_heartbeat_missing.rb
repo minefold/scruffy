@@ -18,7 +18,18 @@ class ServerHeartbeatMissing < Stain
   end
 
   def check_stain(stain)
-    if stain.duration > 1 * 60
+    if stain.duration > 10 * 60
+      log.out 'error',
+        event: stain_type,
+        server_id: stain.id,
+        duration: stain.duration,
+        action: 'kill frozen server'
+      
+      if pinky = pinkies.find {|p| p.server_ids.include?(stain.id) }
+        @pinkies.stop_server! pinky.id, stain.id
+      end
+
+    elsif stain.duration > 1 * 60
       log.warn event: stain_type, server_id: stain.id,
         duration: stain.duration
     end
