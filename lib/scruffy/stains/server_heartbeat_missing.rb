@@ -24,7 +24,7 @@ class ServerHeartbeatMissing < Stain
         server_id: stain.id,
         duration: stain.duration,
         action: 'kill frozen server'
-      
+
       if pinky = pinkies.find {|p| p.server_ids.include?(stain.id) }
         @pinkies.stop_server! pinky.id, stain.id
       end

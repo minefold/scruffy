@@ -78,7 +78,8 @@ class RedisBus
       "server:#{id}:players",
       "server:#{id}:slots",
       "server:#{id}:funpack",
-      "server:#{id}:restart"
+      "server:#{id}:restart",
+      "server:#{id}:ram_alloc",
     )
   end
 
