@@ -14,9 +14,13 @@ class PrismPlayerMissing < Stain
 
   stain :prism_player_missing
 
+  def up_non_tf2_servers
+    @servers.up.select{|s| s.funpack != '50bec3967aae5797c0000004' }
+  end
+
   def affected_ids
     @affected_ids ||= begin
-      @servers.up.map(&:players).flatten.uniq - @bus.prism_players
+      up_non_tf2_servers.map(&:players).flatten.uniq - @bus.prism_players
     end
   end
 
@@ -25,7 +29,7 @@ class PrismPlayerMissing < Stain
       log.warn event: stain_type, player: stain.id,
         duration: stain.duration
     else
-      server = @servers.up.find{|s| s.players.include?(stain.id) }
+      server = up_non_tf2_servers.find{|s| s.players.include?(stain.id) }
       if server
         log.warn event: stain_type,
           player: stain.id,
