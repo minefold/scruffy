@@ -88,7 +88,7 @@ class Scruffy
   def find_gone_pinkies
     (@boxes_cache.ids - @boxes.ids).each do |box_id|
       if pinky = @pinkies.by_id(box_id)
-        if pinky.stopping? or pinky.down?
+        if pinky.starting? or pinky.stopping? or pinky.down?
           log.info event: 'box_gone', id: box_id, action: 'removing pinky'
           @pinkies.delete! box_id
         end

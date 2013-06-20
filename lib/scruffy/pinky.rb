@@ -4,6 +4,10 @@ class Pinky < Struct.new(:id, :state, :free_disk_mb, :free_ram_mb, :idle_cpu, :s
     state == :up
   end
 
+  def starting?
+    state == :starting
+  end
+
   def stopping?
     state == :stopping
   end

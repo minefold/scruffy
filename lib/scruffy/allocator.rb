@@ -3,7 +3,7 @@ class Allocator
   ECUS_PER_SLOT = ((ENV['ECUS_PER_SLOT'] and ENV['ECUS_PER_SLOT'].to_i) || 1)
   RAM_MB_PER_SLOT = (
     (ENV['RAM_MB_PER_SLOT'] and ENV['RAM_MB_PER_SLOT'].to_i) || 512)
-  SERVER_BUFFER = ((ENV['SERVER_BUFFER'] and ENV['SERVER_BUFFER'].to_i) || 3)
+  SERVER_BUFFER = ((ENV['SERVER_BUFFER'] and ENV['SERVER_BUFFER'].to_i) || 5)
   RAM_ALLOCATION = (
     (ENV['RAM_ALLOCATION'] and ENV['RAM_ALLOCATION'].to_f) || 0.9)
   PLAYERS_PER_SLOT = (
@@ -14,7 +14,8 @@ class Allocator
   end
 
   def low_capacity?
-    !@boxes.starting.any? &&
+    !@boxes.pending.any? &&
+      !@boxes.starting.any? &&
       !@pinkies.starting.any? &&
       (available_server_slots <= SERVER_BUFFER)
   end
@@ -33,7 +34,7 @@ class Allocator
   def available_server_slots
     available_pinky_slots - used_server_slots
   end
-  
+
   def used_server_slots
     # only count up pinkies
     @pinkies.inject(0) do |sum, pinky|

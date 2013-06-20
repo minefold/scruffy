@@ -7,6 +7,10 @@ class Array
     find{|e| e.id == id}
   end
 
+  def pending
+    in_state :pending
+  end
+
   def starting
     in_state :starting
   end

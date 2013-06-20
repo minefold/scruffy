@@ -1,7 +1,7 @@
 # uses Fog to talk to EC2
 class FogCluster
   def servers
-    servers = compute_cloud.servers.select do |s|
+    servers = compute_cloud_servers.select do |s|
       s.state != 'terminated' && tag_filter.all? {|k,v| s.tags[k.to_s] == v.to_s}
     end
 
@@ -17,17 +17,20 @@ class FogCluster
     end
   end
 
-  def start_new box_type, ami, tags
+  def start_new(box_type, ami, tags)
     private_key_path = File.join(File.dirname(__FILE__), '../../config/aws.pem')
     raise "private_key_path not found" unless File.exist?(private_key_path)
 
-    instance = compute_cloud.servers.bootstrap({
-      private_key_path: private_key_path,
-      username: 'ubuntu',
+    # TODO choose appropriate region to start server
+    region = compute_clouds.last
+
+    instance = region.servers.create(
+      key_name: 'minefold',
       groups: %W{default pinky},
       flavor_id: box_type,
       image_id: ami,
       user_data: cloud_init_script,
+      availability_zone: ENV['AWS_ZONE'] || 'us-east-1a',
       tags: tags,
       block_device_mapping: [
         {'DeviceName' => '/dev/sdb', 'VirtualName' => 'ephemeral0'},
@@ -35,23 +38,36 @@ class FogCluster
         {'DeviceName' => '/dev/sdd', 'VirtualName' => 'ephemeral2'},
         {'DeviceName' => '/dev/sde', 'VirtualName' => 'ephemeral3'}
       ]
-    })
+    )
+
+    instance.wait_for { ready? }
 
     instance.id
   end
 
   def terminate id
-    instance = compute_cloud.servers.get(id)
-    instance.destroy
+    # instance = compute_cloud.servers.get(id)
+    # instance.destroy
+    puts "terminating #{id}"
   end
 
-  def compute_cloud
-    @compute_cloud ||= Fog::Compute.new({
-      :provider                 => 'AWS',
-      :aws_secret_access_key    => ENV['AWS_SECRET_KEY'],
-      :aws_access_key_id        => ENV['AWS_ACCESS_KEY'],
-      :region                   => ENV['AWS_REGION'] || 'us-east-1'
-    })
+  def compute_clouds
+    @compute_clouds ||= begin
+      compute_clouds = []
+      while ENV["AWS_SECRET_KEY_#{compute_clouds.size}"]
+        compute_clouds << Fog::Compute.new({
+          :provider                 => 'AWS',
+          :aws_secret_access_key    => ENV["AWS_SECRET_KEY_#{compute_clouds.size}"],
+          :aws_access_key_id        => ENV["AWS_ACCESS_KEY_#{compute_clouds.size}"],
+          :region                   => ENV['AWS_REGION'] || 'us-east-1'
+        })
+      end
+      compute_clouds
+    end
+  end
+
+  def compute_cloud_servers
+    compute_clouds.map(&:servers).map(&:to_a).flatten
   end
 
   def box_state ec2_state
@@ -145,14 +161,14 @@ cat<<EOF > /tmp/attributes.json
     "recipe[rsyslog]",
     "recipe[relp::client]",
     "recipe[party-cloud::raid]",
-    "recipe[party-cloud::bootstrap]",
-    "recipe[pinky::deploy]"
+    "recipe[pinky::deploy]",
+    "recipe[party-cloud::bootstrap]"
   ]
 }
 EOF
+gem install bundler --no-ri --no-rdoc
 chef-solo -c /home/ubuntu/chef/ec2/solo.rb -j /tmp/attributes.json
 
-gem install bundler --no-ri --no-rdoc
   EOS
   end
 end
