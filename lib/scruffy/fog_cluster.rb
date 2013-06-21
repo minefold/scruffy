@@ -46,9 +46,8 @@ class FogCluster
   end
 
   def terminate id
-    # instance = compute_cloud.servers.get(id)
-    # instance.destroy
-    puts "terminating #{id}"
+    instance = compute_cloud_servers.find{|s| s.id == id }
+    instance.destroy
   end
 
   def compute_clouds
