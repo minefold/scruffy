@@ -30,7 +30,6 @@ class FogCluster
       flavor_id: box_type,
       image_id: ami,
       user_data: cloud_init_script,
-      availability_zone: ENV['AWS_ZONE'] || 'us-east-1a',
       tags: tags,
       block_device_mapping: [
         {'DeviceName' => '/dev/sdb', 'VirtualName' => 'ephemeral0'},
